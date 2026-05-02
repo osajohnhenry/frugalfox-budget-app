@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTransactions } from '../context/TransactionContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { addTransactionStyles as styles } from '../styles/screenStyles';
@@ -13,6 +14,8 @@ export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
   const [category, setCategory] = useState('');
   const [note, setNote] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -25,11 +28,16 @@ export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
   }, [navigation]);
 
   useEffect(() => {
-    const selected = categories[type].find((item) => item.name === category);
-    if (!selected) {
-      setCategory(categories[type][0]?.name ?? '');
+    // Reset category when type changes
+    setCategory('');
+  }, [type]);
+
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setSelectedDate(selectedDate);
     }
-  }, [type, categories]);
+  };
 
   const handleSave = () => {
     const parsedAmount = parseFloat(amount);
@@ -51,10 +59,13 @@ export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
       category: categoryName,
       categoryIcon: categoryItem.icon,
       note: note.trim(),
+      date: selectedDate.toISOString(),
     });
+    Alert.alert('Success', 'Transaction added successfully!');
     setAmount('');
     setCategory('');
     setNote('');
+    setSelectedDate(new Date());
   };
 
   return (
@@ -69,10 +80,37 @@ export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <TextInput style={styles.input} placeholder="Amount (e.g., 50.00)" keyboardType="numeric" value={amount} onChangeText={setAmount} />
+        {/* Date Picker */}
+        <TouchableOpacity style={styles.datePicker} onPress={() => setShowDatePicker(true)}>
+          <MaterialCommunityIcons name="calendar" size={20} color="#555" style={styles.dateIcon} />
+          <Text style={styles.dateText}>{selectedDate.toLocaleDateString()}</Text>
+        </TouchableOpacity>
+        {showDatePicker && (
+          <DateTimePicker
+            value={selectedDate}
+            mode="date"
+            display="default"
+            onChange={onDateChange}
+            maximumDate={new Date()}
+          />
+        )}
+
+        {/* Amount Input with ₱ symbol */}
+        <View style={styles.amountContainer}>
+          <Text style={styles.currencySymbol}>₱</Text>
+          <TextInput
+            style={styles.amountInput}
+            placeholder="0.00"
+            keyboardType="numeric"
+            value={amount}
+            onChangeText={setAmount}
+          />
+        </View>
 
         <TouchableOpacity style={styles.dropdown} onPress={() => setDropdownOpen((prev) => !prev)}>
-          <Text style={styles.dropdownText}>{category || `Select ${type === 'expense' ? 'Expense' : 'Income'} category`}</Text>
+          <Text style={[styles.dropdownText, !category && styles.placeholderText]}>
+            {category || 'Choose a category'}
+          </Text>
           <Text style={styles.dropdownArrow}>{dropdownOpen ? '▲' : '▼'}</Text>
         </TouchableOpacity>
         {dropdownOpen && (
@@ -88,7 +126,7 @@ export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
                   }}
                 >
                   <View style={styles.dropdownItemRow}>
-                    <MaterialCommunityIcons name={item.icon} size={18} color="#555" style={styles.dropdownItemIcon} />
+                    <MaterialCommunityIcons name={item.icon as any} size={18} color="#555" style={styles.dropdownItemIcon} />
                     <Text style={styles.dropdownItemText}>{item.name}</Text>
                   </View>
                 </TouchableOpacity>

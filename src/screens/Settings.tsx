@@ -10,5 +10,3 @@ export const SettingsScreen: React.FC = () => {
     </View>
   );
 };
-
-

@@ -1,11 +1,20 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { View, Text, Image } from 'react-native';
 import { HomeScreen } from '../screens/HomeScreen';
 import { AddTransactionScreen } from '../screens/AddTransactionScreen';
 import { CategoriesScreen } from '../screens/Categories';
+import { ChartsScreen } from '../screens/Charts';
 
 const Tab = createBottomTabNavigator();
+
+const CustomHeader = ({ title }: { title: string }) => (
+  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+    <Image source={require('../../assets/frugalfox.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
+    <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>{title}</Text>
+  </View>
+);
 
 export const TabNavigator = () => (
   <Tab.Navigator
@@ -19,6 +28,8 @@ export const TabNavigator = () => (
           iconName = 'plus';
         } else if (route.name === 'Categories') {
           iconName = 'tag';
+        } else if (route.name === 'Charts') {
+          iconName = 'chart-donut';
         }
 
         return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
@@ -33,10 +44,9 @@ export const TabNavigator = () => (
       component={HomeScreen} 
       options={{ 
         headerShown: true, 
-        title: 'Jheno Tracker',
+        headerTitle: () => <CustomHeader title="FrugalFox" />,
         headerStyle: { backgroundColor: '#4a90e2' }, 
-        headerTintColor: '#fff', 
-        headerTitleStyle: { fontWeight: 'bold' } 
+        headerTintColor: '#fff'
       }} 
     />
     <Tab.Screen 
@@ -44,10 +54,9 @@ export const TabNavigator = () => (
       component={AddTransactionScreen}
       options={{
         headerShown: true,
-        title: 'Add Transaction',
+        headerTitle: () => <CustomHeader title="Add Transaction" />,
         headerStyle: { backgroundColor: '#4a90e2' },
-        headerTintColor: '#fff',
-        headerTitleStyle: { fontWeight: 'bold' }
+        headerTintColor: '#fff'
       }}
     />
     <Tab.Screen 
@@ -55,10 +64,19 @@ export const TabNavigator = () => (
       component={CategoriesScreen}
       options={{
         headerShown: true,
-        title: 'Manage Categories',
+        headerTitle: () => <CustomHeader title="Manage Categories" />,
         headerStyle: { backgroundColor: '#4a90e2' },
-        headerTintColor: '#fff',
-        headerTitleStyle: { fontWeight: 'bold' }
+        headerTintColor: '#fff'
+      }}
+    />
+    <Tab.Screen 
+      name="Charts" 
+      component={ChartsScreen}
+      options={{
+        headerShown: true,
+        headerTitle: () => <CustomHeader title="Analytics" />,
+        headerStyle: { backgroundColor: '#4a90e2' },
+        headerTintColor: '#fff'
       }}
     />
   </Tab.Navigator>

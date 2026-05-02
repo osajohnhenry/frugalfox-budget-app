@@ -1,12 +1,15 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Transaction, Categories, TransactionType, CategoryItem } from '../types';
+import { Transaction, Categories, TransactionType } from '../types';
 import { getTransactions, saveTransactions, getCategories, saveCategories } from '../storage';
 
 interface TransactionContextType {
   transactions: Transaction[];
-  addTransaction: (tx: Omit<Transaction, 'id' | 'date'>) => void;
+  addTransaction: (tx: Omit<Transaction, 'id'>) => void;
+  editTransaction: (id: string, tx: Omit<Transaction, 'id'>) => boolean;
   categories: Categories;
   addCategory: (type: TransactionType, category: string, icon: string) => boolean;
+  editCategory: (type: TransactionType, oldName: string, newName: string, newIcon: string) => boolean;
+  deleteCategory: (type: TransactionType, name: string) => boolean;
   balance: number;
   loading: boolean;
 }
@@ -27,15 +30,26 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({ childre
     setLoading(false);
   };
 
-  const addTransaction = async (tx: Omit<Transaction, 'id' | 'date'>) => {
+  const addTransaction = async (tx: Omit<Transaction, 'id'>) => {
     const newTx: Transaction = {
       ...tx,
       id: Date.now().toString(),
-      date: new Date().toISOString(),
     };
     const updated = [newTx, ...transactions];
     setTransactions(updated);
     await saveTransactions(updated);
+  };
+
+  const editTransaction = async (id: string, tx: Omit<Transaction, 'id'>) => {
+    const index = transactions.findIndex(t => t.id === id);
+    if (index === -1) return false;
+
+    const updatedTx = { ...tx, id };
+    const updated = [...transactions];
+    updated[index] = updatedTx;
+    setTransactions(updated);
+    await saveTransactions(updated);
+    return true;
   };
 
   const addCategory = (type: TransactionType, category: string, icon: string) => {
@@ -59,12 +73,52 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({ childre
     return true;
   };
 
-  const balance = transactions.reduce((acc, curr) => 
-    curr.type === 'income' ? acc + curr.amount : acc - curr.amount, 0
+  const editCategory = (type: TransactionType, oldName: string, newName: string, newIcon: string) => {
+    const trimmed = newName.trim();
+    if (!trimmed || !newIcon) return false;
+    const current = categories[type];
+    const index = current.findIndex((item) => item.name === oldName);
+    if (index === -1) return false;
+
+    // Check for duplicates
+    const otherType = type === 'income' ? 'expense' : 'income';
+    const other = categories[otherType];
+    const normalized = trimmed.toLowerCase();
+    if (current.some((item, i) => i !== index && item.name.toLowerCase() === normalized)) return false;
+    if (other.some((item) => item.name.toLowerCase() === normalized)) return false;
+
+    const updated = {
+      ...categories,
+      [type]: current.map((item, i) => i === index ? { name: trimmed, icon: newIcon } : item),
+    };
+
+    setCategories(updated);
+    saveCategories(updated).catch((e) => console.error('Failed to save categories', e));
+    return true;
+  };
+
+  const deleteCategory = (type: TransactionType, name: string) => {
+    const current = categories[type];
+    const index = current.findIndex((item) => item.name === name);
+    if (index === -1) return false;
+
+    const updated = {
+      ...categories,
+      [type]: current.filter((_, i) => i !== index),
+    };
+
+    setCategories(updated);
+    saveCategories(updated).catch((e) => console.error('Failed to save categories', e));
+    return true;
+  };
+
+  const balance = transactions.reduce((acc, curr) =>
+    curr.type === 'income' ? acc + curr.amount : acc - curr.amount,
+    0
   );
 
   return (
-    <TransactionContext.Provider value={{ transactions, addTransaction, categories, addCategory, balance, loading }}>
+    <TransactionContext.Provider value={{ transactions, addTransaction, editTransaction, categories, addCategory, editCategory, deleteCategory, balance, loading }}>
       {children}
     </TransactionContext.Provider>
   );
