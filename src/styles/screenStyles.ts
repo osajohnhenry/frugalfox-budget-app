@@ -1,5 +1,108 @@
 import { StyleSheet } from 'react-native';
 
+// Common styles that can be used across all screens
+export const commonStyles = StyleSheet.create({
+  // Icon styles
+  unicodeIcon: { fontSize: 18, marginRight: 8 },
+  unicodeIconLarge: { fontSize: 20, marginRight: 8 },
+  unicodeIconSmall: { fontSize: 16, marginRight: 6 },
+  
+  // Color styles
+  textPrimary: { color: '#333' },
+  textSecondary: { color: '#555' },
+  textMuted: { color: '#888' },
+  textWhite: { color: '#fff' },
+  
+  // Income/Expense colors
+  incomeColor: { color: '#2ecc71' },
+  expenseColor: { color: '#e74c3c' },
+  incomeBg: { backgroundColor: 'rgba(46, 204, 113, 0.25)' },
+  expenseBg: { backgroundColor: 'rgba(231, 76, 60, 0.25)' },
+  
+  // Spacing
+  marginSmall: { margin: 4 },
+  marginMedium: { margin: 8 },
+  marginLarge: { margin: 16 },
+  marginRightSmall: { marginRight: 6 },
+  marginRightMedium: { marginRight: 8 },
+  marginRightLarge: { marginRight: 16 },
+  
+  // Flex layouts
+  row: { flexDirection: 'row' },
+  rowCenter: { flexDirection: 'row', alignItems: 'center' },
+  rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  column: { flexDirection: 'column' },
+  center: { alignItems: 'center', justifyContent: 'center' },
+  
+  // Card styles
+  card: { backgroundColor: '#fff', borderRadius: 8, padding: 16, marginBottom: 8 },
+  cardShadow: { elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2 },
+  
+  // Text styles
+  textSmall: { fontSize: 12 },
+  textMedium: { fontSize: 14 },
+  textLarge: { fontSize: 16 },
+  textXLarge: { fontSize: 18 },
+  textXXLarge: { fontSize: 20 },
+  bold: { fontWeight: 'bold' },
+  semiBold: { fontWeight: '600' },
+  medium: { fontWeight: '500' },
+  
+  // Transaction summary card styles
+  transactionSummaryCard: { 
+    backgroundColor: '#d4edda', 
+    padding: 16, 
+    borderRadius: 12, 
+    marginBottom: 20,
+    borderLeftWidth: 4,
+    borderLeftColor: '#28a745'
+  },
+  transactionSummaryCardExpense: { 
+    backgroundColor: '#f8d7da', 
+    borderLeftColor: '#dc3545'
+  },
+  transactionSummaryText: { 
+    fontSize: 12, 
+    color: '#155724', 
+    marginBottom: 4 
+  },
+  transactionSummaryTextExpense: { 
+    color: '#721c24' 
+  },
+  transactionSummaryAmount: { 
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    color: '#155724' 
+  },
+  transactionSummaryAmountExpense: { 
+    color: '#721c24' 
+  },
+  
+  // Floating action button
+  fab: {
+    width: 56, 
+    height: 56, 
+    borderRadius: 28, 
+    padding: 0, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4
+  },
+  fabText: { 
+    color: '#fff', 
+    fontSize: 24, 
+    fontWeight: 'bold', 
+    marginBottom: 0 
+  }
+});
+
 export const homeStyles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f5f5f5', padding: 16 },
   balanceCard: { backgroundColor: '#4a90e2', padding: 20, borderRadius: 12, marginBottom: 20, alignItems: 'center' },
@@ -13,16 +116,22 @@ export const homeStyles = StyleSheet.create({
   incomeBadge: { backgroundColor: 'rgba(46, 204, 113, 0.25)' },
   list: { flexGrow: 1 },
   txItem: { flexDirection: 'row', justifyContent: 'space-between', padding: 16, backgroundColor: '#fff', borderRadius: 8, marginBottom: 8, elevation: 2 },
+  txItemContent: { flexDirection: 'row', justifyContent: 'space-between', flex: 1 },
   txCategory: { fontSize: 16, fontWeight: '500' },
   txDate: { fontSize: 12, color: '#888' },
   txAmount: { fontSize: 18, fontWeight: 'bold' },
+  editIcon: { marginLeft: 12 },
   income: { color: '#2ecc71' },
   expense: { color: '#e74c3c' },
   emptyText: { textAlign: 'center', marginTop: 40, color: '#888', fontSize: 16 },
   headerButton: { padding: 8, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.18)', marginRight: 12 },
-  addButton: { backgroundColor: '#4a90e2', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 10 },
+  addButton: { padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 10 },
   addButtonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
   loadingContainer: { flex: 1, justifyContent: 'center' },
+  transactionSection: { marginBottom: 20 },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#333' },
+  viewAllLink: { fontSize: 14, color: '#4a90e2', fontWeight: '600' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   modalContent: { backgroundColor: '#fff', padding: 20, borderRadius: 12, width: '90%', maxHeight: '80%' },
   modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 16, color: '#333' },
@@ -134,28 +243,28 @@ export const chartsStyles = StyleSheet.create({
   container: { flexGrow: 1, backgroundColor: '#f5f5f5', padding: 16 },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 20, color: '#333', textAlign: 'center' },
   headerButton: { padding: 8, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.18)', marginRight: 12 },
-  dateFilterContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, backgroundColor: '#fff', padding: 12, borderRadius: 8 },
-  dateButton: { padding: 8 },
-  dateText: { fontSize: 16, fontWeight: '600', color: '#333' },
+  dateFilterContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, backgroundColor: '#fff', padding: 16, borderRadius: 12, elevation: 1 },
+  dateButton: { padding: 8, borderRadius: 6, minWidth: 40, alignItems: 'center', justifyContent: 'center' },
+  dateText: { fontSize: 16, fontWeight: '600' },
   card: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 16, elevation: 2 },
   cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
   cardTitle: { fontSize: 18, fontWeight: 'bold', marginLeft: 8, flex: 1 },
-  cardTotal: { fontSize: 16, fontWeight: '600', color: '#333' },
+  cardTotal: { fontSize: 16, fontWeight: '600' },
   chartContainer: { justifyContent: 'center', alignItems: 'center', height: 200, marginBottom: 16, position: 'relative' },
   chartWithLegend: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
   legendContainer: { marginLeft: 20, justifyContent: 'center' },
   legendItem: { flexDirection: 'row', alignItems: 'center', marginVertical: 4 },
   legendColor: { width: 12, height: 12, borderRadius: 6, marginRight: 8 },
-  legendText: { fontSize: 14, fontWeight: '600', color: '#333' },
+  legendText: { fontSize: 14, fontWeight: '600' },
   donutPlaceholder: { justifyContent: 'center', alignItems: 'center', width: 120, height: 120, borderRadius: 60, borderWidth: 8, borderColor: '#ddd' },
-  donutText: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  donutLabel: { fontSize: 12, color: '#888' },
-  categoryList: { borderTopWidth: 1, borderTopColor: '#eee', paddingTop: 12 },
-  categoryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+  donutText: { fontSize: 18, fontWeight: 'bold' },
+  donutLabel: { fontSize: 12 },
+  categoryList: { borderTopWidth: 1, paddingTop: 12 },
+  categoryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1 },
   categoryRowLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   colorDot: { width: 12, height: 12, borderRadius: 6, marginRight: 8 },
   categoryIcon: { marginRight: 8 },
-  categoryName: { fontSize: 14, color: '#555', flex: 1 },
-  categoryAmount: { fontSize: 14, fontWeight: '600', color: '#333' },
-  emptyText: { textAlign: 'center', color: '#888', fontSize: 14, paddingVertical: 20 },
+  categoryName: { fontSize: 14, flex: 1 },
+  categoryAmount: { fontSize: 14, fontWeight: '600' },
+  emptyText: { textAlign: 'center', fontSize: 14, paddingVertical: 20 },
 });

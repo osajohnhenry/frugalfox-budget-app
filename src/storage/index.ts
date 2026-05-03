@@ -5,8 +5,8 @@ const STORAGE_KEY = '@budget_transactions_v1';
 const CATEGORIES_KEY = '@budget_categories_v1';
 
 const defaultCategories: Categories = {
-  expense: ['Food', 'Transport', 'Bills', 'Shopping'],
-  income: ['Salary', 'Gift', 'Freelance', 'Other'],
+  expense: [],
+  income: [],
 };
 
 export const saveTransactions = async (transactions: Transaction[]) => {
@@ -42,5 +42,15 @@ export const getCategories = async (): Promise<Categories> => {
   } catch (e) {
     console.error('Failed to load categories', e);
     return defaultCategories;
+  }
+};
+
+export const clearAllData = async () => {
+  try {
+    await AsyncStorage.removeItem(STORAGE_KEY);
+    await AsyncStorage.removeItem(CATEGORIES_KEY);
+    console.log('All data cleared successfully');
+  } catch (e) {
+    console.error('Failed to clear data', e);
   }
 };

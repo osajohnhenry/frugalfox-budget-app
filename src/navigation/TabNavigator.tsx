@@ -6,47 +6,56 @@ import { HomeScreen } from '../screens/HomeScreen';
 import { AddTransactionScreen } from '../screens/AddTransactionScreen';
 import { CategoriesScreen } from '../screens/Categories';
 import { ChartsScreen } from '../screens/Charts';
+import { useTheme } from '../context/ThemeContext';
 
 const Tab = createBottomTabNavigator();
 
-const CustomHeader = ({ title }: { title: string }) => (
-  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-    <Image source={require('../../assets/frugalfox.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
-    <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>{title}</Text>
-  </View>
-);
+const CustomHeader = ({ title }: { title: string }) => {
+  const { colors } = useTheme();
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <Image source={require('../../assets/frugalfox.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
+      <Text style={{ color: colors.headerText, fontSize: 18, fontWeight: 'bold' }}>{title}</Text>
+    </View>
+  );
+};
 
-export const TabNavigator = () => (
-  <Tab.Navigator
-    screenOptions={({ route }) => ({
-      tabBarIcon: ({ color, size }) => {
-        let iconName: keyof typeof MaterialCommunityIcons.glyphMap = 'home';
+export const TabNavigator = () => {
+  const { colors } = useTheme();
+  
+  return (
+    <Tab.Navigator
+      id="main-tabs"
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ color, size }) => {
+          let iconName: keyof typeof MaterialCommunityIcons.glyphMap = 'home';
 
-        if (route.name === 'Home') {
-          iconName = 'home';
-        } else if (route.name === 'Add') {
-          iconName = 'plus';
-        } else if (route.name === 'Categories') {
-          iconName = 'tag';
-        } else if (route.name === 'Charts') {
-          iconName = 'chart-donut';
-        }
+          if (route.name === 'Home') {
+            iconName = 'home';
+          } else if (route.name === 'Add') {
+            iconName = 'plus';
+          } else if (route.name === 'Categories') {
+            iconName = 'tag';
+          } else if (route.name === 'Charts') {
+            iconName = 'chart-donut';
+          }
 
-        return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
-      },
-      tabBarActiveTintColor: '#4a90e2',
-      tabBarInactiveTintColor: 'gray',
-      headerShown: false,
-    })}
-  >
+          return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarStyle: { backgroundColor: colors.card },
+        headerShown: false,
+      })}
+    >
     <Tab.Screen 
       name="Home" 
       component={HomeScreen} 
       options={{ 
         headerShown: true, 
         headerTitle: () => <CustomHeader title="FrugalFox" />,
-        headerStyle: { backgroundColor: '#4a90e2' }, 
-        headerTintColor: '#fff'
+        headerStyle: { backgroundColor: colors.header }, 
+        headerTintColor: colors.headerText
       }} 
     />
     <Tab.Screen 
@@ -55,8 +64,8 @@ export const TabNavigator = () => (
       options={{
         headerShown: true,
         headerTitle: () => <CustomHeader title="Add Transaction" />,
-        headerStyle: { backgroundColor: '#4a90e2' },
-        headerTintColor: '#fff'
+        headerStyle: { backgroundColor: colors.header },
+        headerTintColor: colors.headerText
       }}
     />
     <Tab.Screen 
@@ -64,9 +73,9 @@ export const TabNavigator = () => (
       component={CategoriesScreen}
       options={{
         headerShown: true,
-        headerTitle: () => <CustomHeader title="Manage Categories" />,
-        headerStyle: { backgroundColor: '#4a90e2' },
-        headerTintColor: '#fff'
+        headerTitle: () => <CustomHeader title="Categories" />,
+        headerStyle: { backgroundColor: colors.header },
+        headerTintColor: colors.headerText
       }}
     />
     <Tab.Screen 
@@ -74,10 +83,11 @@ export const TabNavigator = () => (
       component={ChartsScreen}
       options={{
         headerShown: true,
-        headerTitle: () => <CustomHeader title="Analytics" />,
-        headerStyle: { backgroundColor: '#4a90e2' },
-        headerTintColor: '#fff'
+        headerTitle: () => <CustomHeader title="Charts" />,
+        headerStyle: { backgroundColor: colors.header },
+        headerTintColor: colors.headerText
       }}
     />
   </Tab.Navigator>
-);
+  );
+};

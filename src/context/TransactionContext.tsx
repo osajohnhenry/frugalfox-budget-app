@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Transaction, Categories, TransactionType } from '../types';
 import { getTransactions, saveTransactions, getCategories, saveCategories } from '../storage';
@@ -5,7 +6,8 @@ import { getTransactions, saveTransactions, getCategories, saveCategories } from
 interface TransactionContextType {
   transactions: Transaction[];
   addTransaction: (tx: Omit<Transaction, 'id'>) => void;
-  editTransaction: (id: string, tx: Omit<Transaction, 'id'>) => boolean;
+  editTransaction: (id: string, tx: Omit<Transaction, 'id'>) => Promise<boolean>;
+  deleteTransaction: (id: string) => Promise<boolean>;
   categories: Categories;
   addCategory: (type: TransactionType, category: string, icon: string) => boolean;
   editCategory: (type: TransactionType, oldName: string, newName: string, newIcon: string) => boolean;
@@ -52,20 +54,23 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({ childre
     return true;
   };
 
+  const deleteTransaction = async (id: string) => {
+    const index = transactions.findIndex(t => t.id === id);
+    if (index === -1) return false;
+
+    const updated = transactions.filter((_, i) => i !== index);
+    setTransactions(updated);
+    await saveTransactions(updated);
+    return true;
+  };
+
   const addCategory = (type: TransactionType, category: string, icon: string) => {
     const trimmed = category.trim();
     if (!trimmed || !icon) return false;
-    const current = categories[type];
-    const otherType = type === 'income' ? 'expense' : 'income';
-    const other = categories[otherType];
-    const normalized = trimmed.toLowerCase();
-
-    if (current.some((item) => item.name.toLowerCase() === normalized)) return false;
-    if (other.some((item) => item.name.toLowerCase() === normalized)) return false;
 
     const updated = {
       ...categories,
-      [type]: [{ name: trimmed, icon }, ...current],
+      [type]: [{ name: trimmed, icon }, ...categories[type]],
     };
 
     setCategories(updated);
@@ -79,13 +84,6 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({ childre
     const current = categories[type];
     const index = current.findIndex((item) => item.name === oldName);
     if (index === -1) return false;
-
-    // Check for duplicates
-    const otherType = type === 'income' ? 'expense' : 'income';
-    const other = categories[otherType];
-    const normalized = trimmed.toLowerCase();
-    if (current.some((item, i) => i !== index && item.name.toLowerCase() === normalized)) return false;
-    if (other.some((item) => item.name.toLowerCase() === normalized)) return false;
 
     const updated = {
       ...categories,
@@ -118,7 +116,7 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({ childre
   );
 
   return (
-    <TransactionContext.Provider value={{ transactions, addTransaction, editTransaction, categories, addCategory, editCategory, deleteCategory, balance, loading }}>
+    <TransactionContext.Provider value={{ transactions, addTransaction, editTransaction, deleteTransaction, categories, addCategory, editCategory, deleteCategory, balance, loading }}>
       {children}
     </TransactionContext.Provider>
   );

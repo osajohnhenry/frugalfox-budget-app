@@ -18,12 +18,37 @@ const polarToCartesian = (centerX: number, centerY: number, radius: number, angl
 };
 
 const describeDonutSlice = (x: number, y: number, innerRadius: number, outerRadius: number, startAngle: number, endAngle: number) => {
+  const sliceAngle = endAngle - startAngle;
+  
+  // Handle 360-degree case (full circle) by drawing two 180-degree arcs
+  if (sliceAngle >= 360) {
+    const midAngle = startAngle + 180;
+    const outerStart = polarToCartesian(x, y, outerRadius, startAngle);
+    const outerMid = polarToCartesian(x, y, outerRadius, midAngle);
+    const outerEnd = polarToCartesian(x, y, outerRadius, endAngle);
+    const innerStart = polarToCartesian(x, y, innerRadius, startAngle);
+    const innerMid = polarToCartesian(x, y, innerRadius, midAngle);
+    const innerEnd = polarToCartesian(x, y, innerRadius, endAngle);
+    
+    const d = [
+      'M', outerStart.x, outerStart.y,
+      'A', outerRadius, outerRadius, 0, 0, 0, outerMid.x, outerMid.y,
+      'A', outerRadius, outerRadius, 0, 0, 0, outerEnd.x, outerEnd.y,
+      'L', innerEnd.x, innerEnd.y,
+      'A', innerRadius, innerRadius, 0, 0, 1, innerMid.x, innerMid.y,
+      'A', innerRadius, innerRadius, 0, 0, 1, innerStart.x, innerStart.y,
+      'Z'
+    ].join(' ');
+    
+    return d;
+  }
+  
   const outerStart = polarToCartesian(x, y, outerRadius, endAngle);
   const outerEnd = polarToCartesian(x, y, outerRadius, startAngle);
   const innerStart = polarToCartesian(x, y, innerRadius, endAngle);
   const innerEnd = polarToCartesian(x, y, innerRadius, startAngle);
   
-  const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
+  const largeArcFlag = sliceAngle <= 180 ? '0' : '1';
   
   const d = [
     'M', outerStart.x, outerStart.y,
