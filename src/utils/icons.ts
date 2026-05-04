@@ -92,7 +92,20 @@ export const getUnicodeIcon = (iconName: string): string => {
     'git': '📦',
     'api': '🔌',
     'web': '🌐',
-    'help-circle': '❓'
+    'help-circle': '❓',
+    // Goal-specific icons
+    'target': '🎯',
+    'trophy': '🏆',
+    'star': '⭐',
+    'heart': '❤️',
+    'plane': '✈️',
+    'diamond': '💎',
+    'rocket': '🚀',
+    'emoticon-happy': '😊',
+    'party-popper': '🎉',
+    'medal': '🥇',
+    'crown': '👑',
+    'flag': '🚩'
   };
   
   return iconMap[iconName] || '❓';

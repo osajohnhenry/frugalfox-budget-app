@@ -6,6 +6,8 @@ import { HomeScreen } from '../screens/HomeScreen';
 import { AddTransactionScreen } from '../screens/AddTransactionScreen';
 import { CategoriesScreen } from '../screens/Categories';
 import { ChartsScreen } from '../screens/Charts';
+import { BudgetScreen } from '../screens/BudgetScreen';
+import { GoalListScreen } from '../screens/GoalListScreen';
 import { useTheme } from '../context/ThemeContext';
 
 const Tab = createBottomTabNavigator();
@@ -38,6 +40,10 @@ export const TabNavigator = () => {
             iconName = 'tag';
           } else if (route.name === 'Charts') {
             iconName = 'chart-donut';
+          } else if (route.name === 'Budgets') {
+            iconName = 'piggy-bank';
+          } else if (route.name === 'Goals') {
+            iconName = 'target';
           }
 
           return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
@@ -84,6 +90,26 @@ export const TabNavigator = () => {
       options={{
         headerShown: true,
         headerTitle: () => <CustomHeader title="Charts" />,
+        headerStyle: { backgroundColor: colors.header },
+        headerTintColor: colors.headerText
+      }}
+    />
+    <Tab.Screen 
+      name="Budgets" 
+      component={BudgetScreen}
+      options={{
+        headerShown: true,
+        headerTitle: () => <CustomHeader title="Budgets" />,
+        headerStyle: { backgroundColor: colors.header },
+        headerTintColor: colors.headerText
+      }}
+    />
+    <Tab.Screen 
+      name="Goals" 
+      component={GoalListScreen}
+      options={{
+        headerShown: true,
+        headerTitle: () => <CustomHeader title="Goals" />,
         headerStyle: { backgroundColor: colors.header },
         headerTintColor: colors.headerText
       }}

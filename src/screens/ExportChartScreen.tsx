@@ -658,7 +658,7 @@ export const ExportChartScreen: React.FC<any> = ({ navigation }) => {
             value={startDate}
             mode="date"
             display="default"
-            onChange={handleStartDateChange}
+            onValueChange={handleStartDateChange}
           />
         )}
 
@@ -691,7 +691,7 @@ export const ExportChartScreen: React.FC<any> = ({ navigation }) => {
                 value={endDate}
                 mode="date"
                 display="default"
-                onChange={handleEndDateChange}
+                onValueChange={handleEndDateChange}
               />
             )}
           </>

@@ -11,8 +11,14 @@ import { EditTransactionScreen } from './src/screens/EditTransactionScreen';
 import { AddCategoryScreen } from './src/screens/AddCategoryScreen';
 import { EditCategoryScreen } from './src/screens/EditCategoryScreen';
 import { ExportChartScreen } from './src/screens/ExportChartScreen';
+import { AddBudgetScreen } from './src/screens/AddBudgetScreen';
+import { EditBudgetScreen } from './src/screens/EditBudgetScreen';
+import { AddGoalScreen } from './src/screens/AddGoalScreen';
+import { EditGoalScreen } from './src/screens/EditGoalScreen';
 import { TabNavigator } from './src/navigation/TabNavigator';
 import { Transaction } from './src/types';
+import { Budget } from './src/types';
+import { Goal } from './src/types';
 import SplashScreen from './src/components/SplashScreen';
 
 type RootStackParamList = {
@@ -25,6 +31,10 @@ type RootStackParamList = {
   AddCategory: { transactionType: 'income' | 'expense' };
   EditCategory: { transactionType: 'income' | 'expense'; categoryName: string; icon: string };
   ExportChart: undefined;
+  AddBudget: undefined;
+  EditBudget: { budget: Budget };
+  AddGoal: undefined;
+  EditGoal: { goal: Goal };
 };
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -57,6 +67,10 @@ export default function App() {
           <Stack.Screen name="AddCategory" component={AddCategoryScreen} options={{ title: 'Add Category' }} />
           <Stack.Screen name="EditCategory" component={EditCategoryScreen} options={{ title: 'Edit Category' }} />
           <Stack.Screen name="ExportChart" component={ExportChartScreen} />
+          <Stack.Screen name="AddBudget" component={AddBudgetScreen} options={{ title: 'Add Budget' }} />
+          <Stack.Screen name="EditBudget" component={EditBudgetScreen} options={{ title: 'Edit Budget' }} />
+          <Stack.Screen name="AddGoal" component={AddGoalScreen} options={{ title: 'Add Goal' }} />
+          <Stack.Screen name="EditGoal" component={EditGoalScreen} options={{ title: 'Edit Goal' }} />
         </Stack.Navigator>
         </NavigationContainer>
       </TransactionProvider>

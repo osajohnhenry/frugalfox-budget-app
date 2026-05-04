@@ -15,14 +15,18 @@ type Props = NativeStackScreenProps<any, 'EditTransaction'>;
 export const EditTransactionScreen: React.FC<Props> = ({ route, navigation }) => {
   const { colors } = useTheme();
   const transaction = route.params.transaction as Transaction;
-  const { editTransaction, deleteTransaction, categories } = useTransactions();
+  const { editTransaction, deleteTransaction, categories, budgets, goals } = useTransactions();
   const [amount, setAmount] = useState(transaction.amount.toString());
   const [type, setType] = useState<'income' | 'expense'>(transaction.type);
   const [category, setCategory] = useState(transaction.category);
   const [note, setNote] = useState(transaction.note);
+  const [budgetId, setBudgetId] = useState(transaction.budgetId || '');
+  const [goalId, setGoalId] = useState(transaction.goalId || '');
   const [date, setDate] = useState(new Date(transaction.date));
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [budgetDropdownOpen, setBudgetDropdownOpen] = useState(false);
+  const [goalDropdownOpen, setGoalDropdownOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [amountFocused, setAmountFocused] = useState(false);
@@ -53,6 +57,10 @@ export const EditTransactionScreen: React.FC<Props> = ({ route, navigation }) =>
     }
   };
 
+  const onDatePickerDismiss = () => {
+    setShowDatePicker(false);
+  };
+
   const handleSave = async () => {
     const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
@@ -74,6 +82,8 @@ export const EditTransactionScreen: React.FC<Props> = ({ route, navigation }) =>
       categoryIcon: categoryItem.icon,
       note: note.trim(),
       date: date.toISOString(),
+      budgetId: budgetId || undefined,
+      goalId: goalId || undefined,
     });
     setIsSaving(false);
 
@@ -211,6 +221,7 @@ export const EditTransactionScreen: React.FC<Props> = ({ route, navigation }) =>
             mode="date"
             display="default"
             onValueChange={onDateChange}
+            onDismiss={onDatePickerDismiss}
             maximumDate={new Date()}
           />
         )}
@@ -306,6 +317,188 @@ export const EditTransactionScreen: React.FC<Props> = ({ route, navigation }) =>
             </View>
           )}
         </View>
+
+        {/* Budget Dropdown (only for expenses) */}
+        {type === 'expense' && (
+          <View style={{ marginTop: 0 }}>
+            <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 4 }]}>
+              Budget (optional)
+            </Text>
+            <TouchableOpacity 
+              style={[styles.dropdown, { 
+                backgroundColor: colors.card,
+                borderColor: budgetDropdownOpen ? colors.primary : colors.border,
+                borderWidth: 1.5,
+                borderRadius: 12
+              }]} 
+              onPress={() => setBudgetDropdownOpen((prev) => !prev)}
+            >
+              <View style={commonStyles.rowCenter}>
+                {budgetId && (
+                  <Text style={[commonStyles.unicodeIconLarge, { marginRight: 8, color: colors.primary }]}>
+                    {getUnicodeIcon(budgets.find(b => b.id === budgetId)?.icon || 'piggy-bank')}
+                  </Text>
+                )}
+                <Text style={[styles.dropdownText, !budgetId && styles.placeholderText, { flex: 1, color: budgetId ? colors.text : colors.textSecondary }]}>
+                  {budgetId ? budgets.find(b => b.id === budgetId)?.name || 'Select budget' : 'Choose a budget (optional)'}
+                </Text>
+                <MaterialCommunityIcons 
+                  name={budgetDropdownOpen ? 'chevron-up' : 'chevron-down'} 
+                  size={20} 
+                  color={colors.primary}
+                />
+              </View>
+            </TouchableOpacity>
+            {budgetDropdownOpen && (
+              <View style={[styles.dropdownList, { 
+                borderColor: colors.border,
+                borderWidth: 1,
+                borderRadius: 12,
+                marginTop: 4,
+                backgroundColor: colors.card
+              }]}>
+                <TouchableOpacity
+                  key="no-budget"
+                  style={[styles.dropdownItem, { 
+                    borderBottomWidth: 1,
+                    borderBottomColor: colors.border
+                  }]}
+                  onPress={() => {
+                    setBudgetId('');
+                    setBudgetDropdownOpen(false);
+                  }}
+                >
+                  <View style={commonStyles.rowCenter}>
+                    <MaterialCommunityIcons name="minus-circle-outline" size={20} color={colors.textSecondary} style={{ marginRight: 12 }} />
+                    <Text style={{ fontSize: 16, color: colors.textSecondary }}>No budget</Text>
+                  </View>
+                </TouchableOpacity>
+                {budgets.length > 0 ? (
+                  budgets.map((budget) => (
+                    <TouchableOpacity
+                      key={budget.id}
+                      style={[styles.dropdownItem, { 
+                        borderBottomWidth: 1,
+                        borderBottomColor: colors.border
+                      }]}
+                      onPress={() => {
+                        setBudgetId(budget.id);
+                        setBudgetDropdownOpen(false);
+                      }}
+                    >
+                      <View style={commonStyles.rowCenter}>
+                        <Text style={[commonStyles.unicodeIconLarge, { marginRight: 12, color: colors.primary }]}>
+                          {getUnicodeIcon(budget.icon)}
+                        </Text>
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ fontSize: 16, color: colors.text }}>{budget.name}</Text>
+                          <Text style={{ fontSize: 12, color: colors.textSecondary }}>
+                            Budget: ${budget.amount.toFixed(2)}
+                          </Text>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <Text style={[styles.emptyCategoryText, { color: colors.textSecondary }]}>
+                    No budgets found. Create budgets in the Budgets screen.
+                  </Text>
+                )}
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* Goal Dropdown (only for income) */}
+        {type === 'income' && (
+          <View style={{ marginTop: 16 }}>
+            <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 4 }]}>
+              Goal (optional)
+            </Text>
+            <TouchableOpacity 
+              style={[styles.dropdown, { 
+                backgroundColor: colors.card,
+                borderColor: goalDropdownOpen ? colors.primary : colors.border,
+                borderWidth: 1.5,
+                borderRadius: 12
+              }]} 
+              onPress={() => setGoalDropdownOpen((prev) => !prev)}
+            >
+              <View style={commonStyles.rowCenter}>
+                {goalId && (
+                  <Text style={[commonStyles.unicodeIconLarge, { marginRight: 8, color: colors.primary }]}>
+                    {getUnicodeIcon(goals.find(g => g.id === goalId)?.icon || 'target')}
+                  </Text>
+                )}
+                <Text style={[styles.dropdownText, !goalId && styles.placeholderText, { flex: 1, color: goalId ? colors.text : colors.textSecondary }]}>
+                  {goalId ? goals.find(g => g.id === goalId)?.name || 'Select goal' : 'Choose a goal (optional)'}
+                </Text>
+                <MaterialCommunityIcons 
+                  name={goalDropdownOpen ? 'chevron-up' : 'chevron-down'} 
+                  size={20} 
+                  color={colors.primary}
+                />
+              </View>
+            </TouchableOpacity>
+            {goalDropdownOpen && (
+              <View style={[styles.dropdownList, { 
+                borderColor: colors.border,
+                borderWidth: 1,
+                borderRadius: 12,
+                marginTop: 4,
+                backgroundColor: colors.card
+              }]}>
+                <TouchableOpacity
+                  key="no-goal"
+                  style={[styles.dropdownItem, { 
+                    borderBottomWidth: 1,
+                    borderBottomColor: colors.border
+                  }]}
+                  onPress={() => {
+                    setGoalId('');
+                    setGoalDropdownOpen(false);
+                  }}
+                >
+                  <View style={commonStyles.rowCenter}>
+                    <MaterialCommunityIcons name="minus-circle-outline" size={20} color={colors.textSecondary} style={{ marginRight: 12 }} />
+                    <Text style={{ fontSize: 16, color: colors.textSecondary }}>No goal</Text>
+                  </View>
+                </TouchableOpacity>
+                {goals.length > 0 ? (
+                  goals.map((goal) => (
+                    <TouchableOpacity
+                      key={goal.id}
+                      style={[styles.dropdownItem, { 
+                        borderBottomWidth: 1,
+                        borderBottomColor: colors.border
+                      }]}
+                      onPress={() => {
+                        setGoalId(goal.id);
+                        setGoalDropdownOpen(false);
+                      }}
+                    >
+                      <View style={commonStyles.rowCenter}>
+                        <Text style={[commonStyles.unicodeIconLarge, { marginRight: 12, color: colors.primary }]}>
+                          {getUnicodeIcon(goal.icon)}
+                        </Text>
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ fontSize: 16, color: colors.text }}>{goal.name}</Text>
+                          <Text style={{ fontSize: 12, color: colors.textSecondary }}>
+                            Target: ₱{goal.targetAmount.toFixed(2)} ({((goal.currentAmount / goal.targetAmount) * 100).toFixed(1)}%)
+                          </Text>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <Text style={[styles.emptyCategoryText, { color: colors.textSecondary }]}>
+                    No goals found. Create goals in the Goals screen.
+                  </Text>
+                )}
+              </View>
+            )}
+          </View>
+        )}
 
         {/* Note Input */}
         <View style={{ marginTop: 0 }}>

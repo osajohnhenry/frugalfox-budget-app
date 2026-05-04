@@ -10,6 +10,24 @@ export interface Categories {
   income: CategoryItem[];
 }
 
+export interface Budget {
+  id: string;
+  name: string;
+  amount: number;
+  icon: string;
+  createdAt: string;
+}
+
+export interface Goal {
+  id: string;
+  name: string;
+  targetAmount: number;
+  currentAmount: number;
+  icon: string;
+  createdAt: string;
+  completed: boolean;
+}
+
 export interface Transaction {
   id: string;
   amount: number;
@@ -18,4 +36,6 @@ export interface Transaction {
   categoryIcon?: string;
   note: string;
   date: string;
+  budgetId?: string;
+  goalId?: string;
 }

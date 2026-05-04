@@ -11,12 +11,16 @@ import { getUnicodeIcon } from '../utils/icons';
 
 export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
   const { colors } = useTheme();
-  const { addTransaction, categories } = useTransactions();
+  const { addTransaction, categories, budgets, goals } = useTransactions();
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [category, setCategory] = useState('');
   const [note, setNote] = useState('');
+  const [budgetId, setBudgetId] = useState('');
+  const [goalId, setGoalId] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [budgetDropdownOpen, setBudgetDropdownOpen] = useState(false);
+  const [goalDropdownOpen, setGoalDropdownOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -26,23 +30,36 @@ export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity style={styles.headerButton} onPress={() => navigation.getParent()?.navigate('Settings')}>
-          <MaterialCommunityIcons name="cog" size={20} color={colors.headerText} />
+        <TouchableOpacity 
+          style={{ padding: 8, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.18)', marginRight: 12 }}
+          onPress={() => navigation.getParent()?.navigate('Settings')}
+        >
+          <MaterialCommunityIcons name="cog" size={22} color={colors.headerText} />
         </TouchableOpacity>
       ),
     });
   }, [navigation, colors]);
 
   useEffect(() => {
-    // Reset category when type changes
+    // Reset category, budget, and goal when type changes
     setCategory('');
+    setBudgetId('');
+    setGoalId('');
   }, [type]);
 
   const onDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
+    // Handle both old and new API formats
     if (selectedDate) {
       setSelectedDate(selectedDate);
+    } else if (event && event.type === 'set' && event.nativeEvent && event.nativeEvent.timestamp) {
+      // For some platforms, the date might be in event.nativeEvent
+      setSelectedDate(new Date(event.nativeEvent.timestamp));
     }
+  };
+
+  const onDatePickerDismiss = () => {
+    setShowDatePicker(false);
   };
 
   const handleSave = async () => {
@@ -68,12 +85,16 @@ export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
         categoryIcon: categoryItem.icon,
         note: note.trim(),
         date: selectedDate.toISOString(),
+        budgetId: budgetId || undefined,
+        goalId: goalId || undefined,
       });
       Alert.alert('Success', 'Transaction added successfully!', [
         { text: 'OK', onPress: () => {
           setAmount('');
           setCategory('');
           setNote('');
+          setBudgetId('');
+          setGoalId('');
           setSelectedDate(new Date());
         }}
       ]);
@@ -180,6 +201,7 @@ export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
             mode="date"
             display="default"
             onValueChange={onDateChange}
+            onDismiss={onDatePickerDismiss}
             maximumDate={new Date()}
           />
         )}
@@ -285,6 +307,201 @@ export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
             </View>
           )}
         </View>
+
+        {/* Enhanced Budget Dropdown (only for expenses) */}
+        {type === 'expense' && (
+          <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16, marginTop: -30 }]}>
+            <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>
+              Budget (optional)
+            </Text>
+            <TouchableOpacity 
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                padding: 16,
+                backgroundColor: colors.card,
+                borderColor: budgetDropdownOpen ? colors.primary : colors.border,
+                borderWidth: 1.5,
+                borderRadius: 12
+              }} 
+              onPress={() => setBudgetDropdownOpen((prev) => !prev)}
+            >
+              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+                {budgetId && (
+                  <Text style={[commonStyles.unicodeIconLarge, { marginRight: 8, color: colors.primary }]}>
+                    {getUnicodeIcon(budgets.find(b => b.id === budgetId)?.icon || 'piggy-bank')}
+                  </Text>
+                )}
+                <Text style={{ color: budgetId ? colors.text : colors.textSecondary, fontSize: 16, fontWeight: '500' }}>
+                  {budgetId ? budgets.find(b => b.id === budgetId)?.name || 'Select budget' : 'Choose a budget (optional)'}
+                </Text>
+              </View>
+              <MaterialCommunityIcons 
+                name={budgetDropdownOpen ? 'chevron-up' : 'chevron-down'} 
+                size={20} 
+                color={colors.primary} 
+              />
+            </TouchableOpacity>
+            {budgetDropdownOpen && (
+              <View style={{ 
+                borderColor: colors.border,
+                borderWidth: 1,
+                borderRadius: 12,
+                marginTop: 4,
+                backgroundColor: colors.card
+              }}>
+                <TouchableOpacity
+                  key="no-budget"
+                  style={{ 
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    padding: 16,
+                    borderBottomWidth: 1,
+                    borderBottomColor: colors.border
+                  }}
+                  onPress={() => {
+                    setBudgetId('');
+                    setBudgetDropdownOpen(false);
+                  }}
+                >
+                  <MaterialCommunityIcons name="minus-circle-outline" size={20} color={colors.textSecondary} style={{ marginRight: 12 }} />
+                  <Text style={{ fontSize: 16, color: colors.textSecondary }}>No budget</Text>
+                </TouchableOpacity>
+                {budgets.length > 0 ? (
+                  budgets.map((budget) => (
+                    <TouchableOpacity
+                      key={budget.id}
+                      style={{ 
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        padding: 16,
+                        borderBottomWidth: 1,
+                        borderBottomColor: colors.border
+                      }}
+                      onPress={() => {
+                        setBudgetId(budget.id);
+                        setBudgetDropdownOpen(false);
+                      }}
+                    >
+                      <Text style={[commonStyles.unicodeIconLarge, { marginRight: 12, color: colors.primary }]}>
+                        {getUnicodeIcon(budget.icon)}
+                      </Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 16, color: colors.text }}>{budget.name}</Text>
+                        <Text style={{ fontSize: 12, color: colors.textSecondary }}>
+                          Budget: ₱{budget.amount.toFixed(2)}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <Text style={{ padding: 16, color: colors.textSecondary, textAlign: 'center' }}>
+                    No budgets found. Create budgets in the Budgets screen.
+                  </Text>
+                )}
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* Enhanced Goal Dropdown (only for income) */}
+        {type === 'income' && (
+          <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16, marginTop: -30 }]}>
+            <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>
+              Goal (optional)
+            </Text>
+            <TouchableOpacity 
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                padding: 16,
+                backgroundColor: colors.card,
+                borderColor: goalDropdownOpen ? colors.primary : colors.border,
+                borderWidth: 1.5,
+                borderRadius: 12
+              }} 
+              onPress={() => setGoalDropdownOpen((prev) => !prev)}
+            >
+              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+                {goalId && (
+                  <Text style={[commonStyles.unicodeIconLarge, { marginRight: 8, color: '#2ecc71' }]}>
+                    {getUnicodeIcon(goals.find(g => g.id === goalId)?.icon || 'target')}
+                  </Text>
+                )}
+                <Text style={{ color: goalId ? colors.text : colors.textSecondary, fontSize: 16, fontWeight: '500' }}>
+                  {goalId ? goals.find(g => g.id === goalId)?.name || 'Select goal' : 'Choose a goal (optional)'}
+                </Text>
+              </View>
+              <MaterialCommunityIcons 
+                name={goalDropdownOpen ? 'chevron-up' : 'chevron-down'} 
+                size={20} 
+                color={colors.primary} 
+              />
+            </TouchableOpacity>
+            {goalDropdownOpen && (
+              <View style={{ 
+                borderColor: colors.border,
+                borderWidth: 1,
+                borderRadius: 12,
+                marginTop: 4,
+                backgroundColor: colors.card
+              }}>
+                <TouchableOpacity
+                  key="no-goal"
+                  style={{ 
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    padding: 16,
+                    borderBottomWidth: 1,
+                    borderBottomColor: colors.border
+                  }}
+                  onPress={() => {
+                    setGoalId('');
+                    setGoalDropdownOpen(false);
+                  }}
+                >
+                  <MaterialCommunityIcons name="minus-circle-outline" size={20} color={colors.textSecondary} style={{ marginRight: 12 }} />
+                  <Text style={{ fontSize: 16, color: colors.textSecondary }}>No goal</Text>
+                </TouchableOpacity>
+                {goals.length > 0 ? (
+                  goals.map((goal) => (
+                    <TouchableOpacity
+                      key={goal.id}
+                      style={{ 
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        padding: 16,
+                        borderBottomWidth: 1,
+                        borderBottomColor: colors.border
+                      }}
+                      onPress={() => {
+                        setGoalId(goal.id);
+                        setGoalDropdownOpen(false);
+                      }}
+                    >
+                      <Text style={[commonStyles.unicodeIconLarge, { marginRight: 12, color: '#2ecc71' }]}>
+                        {getUnicodeIcon(goal.icon)}
+                      </Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 16, color: colors.text }}>{goal.name}</Text>
+                        <Text style={{ fontSize: 12, color: colors.textSecondary }}>
+                          Target: ₱{goal.targetAmount.toFixed(2)} | Progress: ₱{goal.currentAmount.toFixed(2)}
+                        </Text>
+                      </View>
+                      {goal.completed && (
+                        <MaterialCommunityIcons name="check-circle" size={16} color="#2ecc71" />
+                      )}
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <Text style={{ padding: 16, color: colors.textSecondary, textAlign: 'center' }}>
+                    No goals found. Create goals in the Goals screen.
+                  </Text>
+                )}
+              </View>
+            )}
+          </View>
+        )}
 
         {/* Enhanced Note Input */}
         <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16, marginTop: -30 }]}>
