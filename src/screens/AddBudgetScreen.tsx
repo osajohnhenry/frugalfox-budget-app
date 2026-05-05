@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, KeyboardAvo
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTransactions } from '../context/TransactionContext';
 import { useTheme } from '../context/ThemeContext';
-import { commonStyles } from '../styles/screenStyles';
+import { commonStyles, budgetGoalStyles } from '../styles/screenStyles';
 import { getUnicodeIcon } from '../utils/icons';
 
 const BUDGET_ICONS = [
@@ -32,7 +32,7 @@ export const AddBudgetScreen: React.FC<any> = ({ navigation }) => {
       headerBackVisible: true,
       headerRight: () => (
         <TouchableOpacity 
-          style={{ padding: 8, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.18)', marginRight: 12 }}
+          style={budgetGoalStyles.headerButton}
           onPress={() => navigation.navigate('Settings')}
         >
           <MaterialCommunityIcons name="cog" size={22} color={colors.headerText} />
@@ -109,16 +109,14 @@ export const AddBudgetScreen: React.FC<any> = ({ navigation }) => {
             Budget Name
           </Text>
           <TextInput
-            style={{
-              backgroundColor: colors.card,
-              borderColor: nameFocused ? colors.primary : colors.border,
-              borderWidth: 1.5,
-              borderRadius: 12,
-              paddingHorizontal: 16,
-              paddingVertical: 12,
-              fontSize: 16,
-              color: colors.text
-            }}
+            style={[
+              budgetGoalStyles.inputField,
+              {
+                backgroundColor: colors.card,
+                borderColor: nameFocused ? colors.primary : colors.border,
+                color: colors.text
+              }
+            ]}
             placeholder="Enter budget name"
             placeholderTextColor={colors.textSecondary}
             value={name}
@@ -134,19 +132,16 @@ export const AddBudgetScreen: React.FC<any> = ({ navigation }) => {
           <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>
             Budget Amount
           </Text>
-          <View style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: colors.card,
-            borderColor: amountFocused ? colors.primary : colors.border,
-            borderWidth: 1.5,
-            borderRadius: 12,
-            paddingHorizontal: 16,
-            paddingVertical: 4
-          }}>
-            <Text style={{ color: colors.primary, fontSize: 20, fontWeight: 'bold', marginRight: 8 }}>₱</Text>
+          <View style={[
+            budgetGoalStyles.amountContainer,
+            {
+              backgroundColor: colors.card,
+              borderColor: amountFocused ? colors.primary : colors.border,
+            }
+          ]}>
+            <Text style={[budgetGoalStyles.currencySymbol, { color: colors.primary }]}>₱</Text>
             <TextInput
-              style={{ flex: 1, fontSize: 18, fontWeight: '500', color: colors.text }}
+              style={[budgetGoalStyles.amountInput, { color: colors.text }]}
               placeholder="0.00"
               placeholderTextColor={colors.textSecondary}
               keyboardType="numeric"
@@ -164,9 +159,9 @@ export const AddBudgetScreen: React.FC<any> = ({ navigation }) => {
           <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 16 }]}>
             Select Icon
           </Text>
-          <View style={styles.selectedIconContainer}>
-            <Text style={styles.selectedIconText}>{getUnicodeIcon(selectedIcon)}</Text>
-            <Text style={[styles.selectedIconLabel, { color: colors.text }]}>
+          <View style={budgetGoalStyles.selectedIconContainer}>
+            <Text style={budgetGoalStyles.selectedIconText}>{getUnicodeIcon(selectedIcon)}</Text>
+            <Text style={[budgetGoalStyles.selectedIconLabel, { color: colors.text }]}>
               {selectedIcon.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
             </Text>
           </View>
@@ -175,32 +170,24 @@ export const AddBudgetScreen: React.FC<any> = ({ navigation }) => {
 
         {/* Save Button */}
         <TouchableOpacity 
-          style={{
-            backgroundColor: isSaving ? '#95a5a6' : colors.primary, 
-            paddingVertical: 16, 
-            paddingHorizontal: 24, 
-            borderRadius: 12, 
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            elevation: 2,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4
-          }} 
+          style={[
+            budgetGoalStyles.saveButton,
+            {
+              backgroundColor: isSaving ? '#95a5a6' : colors.primary,
+            }
+          ]} 
           onPress={handleSave}
           disabled={isSaving}
         >
           {isSaving ? (
             <>
-              <MaterialCommunityIcons name="loading" size={20} color="#fff" style={{ marginRight: 8 }} />
-              <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>Creating...</Text>
+              <MaterialCommunityIcons name="loading" size={20} color="#fff" style={budgetGoalStyles.saveButtonText} />
+              <Text style={budgetGoalStyles.saveButtonText}>Creating...</Text>
             </>
           ) : (
             <>
-              <MaterialCommunityIcons name="plus-circle" size={20} color="#fff" style={{ marginRight: 8 }} />
-              <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>Create Budget</Text>
+              <MaterialCommunityIcons name="plus-circle" size={20} color="#fff" style={budgetGoalStyles.saveButtonText} />
+              <Text style={budgetGoalStyles.saveButtonText}>Create Budget</Text>
             </>
           )}
         </TouchableOpacity>
@@ -210,41 +197,7 @@ export const AddBudgetScreen: React.FC<any> = ({ navigation }) => {
 };
 
 const styles = {
-  headerButton: {
-    padding: 8,
-  },
-  iconGrid: {
-    flexDirection: 'row' as const,
-    flexWrap: 'wrap' as const,
-    justifyContent: 'center' as const,
-  },
-  iconItem: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-    margin: 8,
-    borderWidth: 2,
-  },
-  iconItemText: {
-    fontSize: 24,
-  },
-  selectedIconContainer: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    padding: 16,
-    backgroundColor: 'rgba(74, 144, 226, 0.1)',
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  selectedIconText: {
-    fontSize: 32,
-    marginRight: 12,
-  },
-  selectedIconLabel: {
-    fontSize: 16,
-    fontWeight: '500' as const,
-  },
+  iconGrid: budgetGoalStyles.iconGrid,
+  iconItem: budgetGoalStyles.iconItem,
+  iconItemText: budgetGoalStyles.iconItemText,
 };

@@ -17,6 +17,7 @@ interface TransactionContextType {
   editBudget: (id: string, budget: Omit<Budget, 'id'>) => Promise<boolean>;
   deleteBudget: (id: string) => Promise<boolean>;
   getBudgetSpending: (budgetId: string) => number;
+  getBudgetTransactions: (budgetId: string, limit?: number) => Transaction[];
   updateBudgetProgress: (budgetId: string) => void;
   goals: Goal[];
   addGoal: (goal: Omit<Goal, 'id'>) => void;
@@ -191,6 +192,13 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({ childre
       .reduce((sum, t) => sum + t.amount, 0);
   };
 
+  const getBudgetTransactions = (budgetId: string, limit: number = 5) => {
+    return transactions
+      .filter(t => t.budgetId === budgetId && t.type === 'expense')
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, limit);
+  };
+
   const addBudget = async (budget: Omit<Budget, 'id'>) => {
     const newBudget: Budget = {
       ...budget,
@@ -315,6 +323,7 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({ childre
       editBudget, 
       deleteBudget, 
       getBudgetSpending,
+      getBudgetTransactions,
       updateBudgetProgress,
       goals, 
       addGoal, 

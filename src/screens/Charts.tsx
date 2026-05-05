@@ -299,7 +299,7 @@ export const ChartsScreen: React.FC<any> = ({ navigation }) => {
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.3,
       shadowRadius: 4
-    }} onPress={() => navigation.navigate('Add')}>
+    }} onPress={() => navigation.navigate('AddTransaction')}>
       <Text style={{ color: '#fff', fontSize: 24, fontWeight: 'bold', marginBottom: 0 }}>+</Text>
     </TouchableOpacity>
     </View>

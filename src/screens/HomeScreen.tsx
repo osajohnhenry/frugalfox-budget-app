@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTransactions } from '../context/TransactionContext';
 import { useTheme } from '../context/ThemeContext';
 import { Transaction } from '../types';
-import { homeStyles as styles, commonStyles } from '../styles/screenStyles';
+import { homeStyles, commonStyles } from '../styles/screenStyles';
 import { getUnicodeIcon } from '../utils/icons';
 
 
@@ -14,13 +14,13 @@ const TransactionItem: React.FC<{ item: Transaction; onPress: () => void }> = ({
   const { colors } = useTheme();
   
   return (
-    <TouchableOpacity style={[styles.txItem, { backgroundColor: colors.card }]} onPress={onPress}>
+    <TouchableOpacity style={[homeStyles.txItem, { backgroundColor: colors.card }]} onPress={onPress}>
       <View>
-        <Text style={[styles.txCategory, commonStyles.unicodeIcon]}>{getUnicodeIcon(item.categoryIcon || 'help-circle')}</Text>
-        <Text style={[styles.txCategory, { color: colors.text }]}>{item.category}</Text>
-        <Text style={[styles.txDate, { color: colors.textSecondary }]}>{new Date(item.date).toLocaleDateString()}</Text>
+        <Text style={[homeStyles.txCategory, commonStyles.unicodeIcon]}>{getUnicodeIcon(item.categoryIcon || 'help-circle')}</Text>
+        <Text style={[homeStyles.txCategory, { color: colors.text }]}>{item.category}</Text>
+        <Text style={[homeStyles.txDate, { color: colors.textSecondary }]}>{new Date(item.date).toLocaleDateString()}</Text>
       </View>
-      <Text style={[styles.txAmount, item.type === 'income' ? styles.income : styles.expense]}>
+      <Text style={[homeStyles.txAmount, item.type === 'income' ? homeStyles.income : homeStyles.expense]}>
         {item.type === 'income' ? '+' : '-'}{currencySymbol}{item.amount.toFixed(2)}
       </Text>
     </TouchableOpacity>
@@ -47,49 +47,49 @@ export const HomeScreen: React.FC<any> = ({ navigation }) => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity style={styles.headerButton} onPress={() => navigation.getParent()?.navigate('Settings')}>
+        <TouchableOpacity style={homeStyles.headerButton} onPress={() => navigation.getParent()?.navigate('Settings')}>
           <MaterialCommunityIcons name="cog" size={22} color={colors.headerText} />
         </TouchableOpacity>
       ),
     });
   }, [navigation]);
 
-  if (loading) return <ActivityIndicator size="large" style={styles.loadingContainer} />;
+  if (loading) return <ActivityIndicator size="large" style={homeStyles.loadingContainer} />;
 
   const hasNoTransactions = expenseTransactions.length === 0 && incomeTransactions.length === 0;
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={{ paddingBottom: 80 }}>
-      <View style={[styles.balanceCard, { backgroundColor: isDarkMode ? colors.card : '#c7c7ff' }]}>
-        <Text style={[styles.balanceLabel, { color: colors.textSecondary }]}>Total Balance</Text>
-        <Text style={[styles.balanceValue, { color: colors.text }]}>{currencySymbol}{balance.toFixed(2)}</Text>
-        <View style={styles.totalsRow}>
-          <View style={[styles.totalsBadge, styles.expenseBadge]}>
-            <Text style={[styles.totalsLabel, { color: isDarkMode ? colors.text : '#fff' }]}>Expenses</Text>
-            <Text style={[styles.totalsValue, { color: isDarkMode ? colors.text : '#fff' }]}>-{currencySymbol}{expenseTotal.toFixed(2)}</Text>
+      <ScrollView style={[homeStyles.container, { backgroundColor: colors.background }]} contentContainerStyle={{ paddingBottom: 80 }}>
+      <View style={[homeStyles.balanceCard, { backgroundColor: isDarkMode ? colors.card : '#c7c7ff' }]}>
+        <Text style={[homeStyles.balanceLabel, { color: colors.textSecondary }]}>Total Balance</Text>
+        <Text style={[homeStyles.balanceValue, { color: colors.text }]}>{currencySymbol}{balance.toFixed(2)}</Text>
+        <View style={homeStyles.totalsRow}>
+          <View style={[homeStyles.totalsBadge, homeStyles.expenseBadge]}>
+            <Text style={[homeStyles.totalsLabel, { color: isDarkMode ? colors.text : '#fff' }]}>Expenses</Text>
+            <Text style={[homeStyles.totalsValue, { color: isDarkMode ? colors.text : '#fff' }]}>-{currencySymbol}{expenseTotal.toFixed(2)}</Text>
           </View>
-          <View style={[styles.totalsBadge, styles.incomeBadge]}>
-            <Text style={[styles.totalsLabel, { color: isDarkMode ? colors.text : '#fff' }]}>Income</Text>
-            <Text style={[styles.totalsValue, { color: isDarkMode ? colors.text : '#fff' }]}>+{currencySymbol}{incomeTotal.toFixed(2)}</Text>
+          <View style={[homeStyles.totalsBadge, homeStyles.incomeBadge]}>
+            <Text style={[homeStyles.totalsLabel, { color: isDarkMode ? colors.text : '#fff' }]}>Income</Text>
+            <Text style={[homeStyles.totalsValue, { color: isDarkMode ? colors.text : '#fff' }]}>+{currencySymbol}{incomeTotal.toFixed(2)}</Text>
           </View>
         </View>
       </View>
 
       {hasNoTransactions ? (
-        <View style={styles.list}>
-          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No transactions yet. Tap + to add one!</Text>
+        <View style={homeStyles.list}>
+          <Text style={[homeStyles.emptyText, { color: colors.textSecondary }]}>No transactions yet. Tap + to add one!</Text>
         </View>
       ) : (
-        <View style={styles.list}>
+        <View style={homeStyles.list}>
           {/* Expenses Section */}
           {expenseTransactions.length > 0 && (
-            <View style={styles.transactionSection}>
-              <View style={styles.sectionHeader}>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>Expenses</Text>
+            <View style={homeStyles.transactionSection}>
+              <View style={homeStyles.sectionHeader}>
+                <Text style={[homeStyles.sectionTitle, { color: colors.text }]}>Expenses</Text>
                 {expenseTransactions.length > 5 && (
                   <TouchableOpacity onPress={() => navigation.navigate('AllTransactions', { transactionType: 'expense' })}>
-                    <Text style={[styles.viewAllLink, { color: colors.primary }]}>View All</Text>
+                    <Text style={[homeStyles.viewAllLink, { color: colors.primary }]}>View All</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -101,12 +101,12 @@ export const HomeScreen: React.FC<any> = ({ navigation }) => {
 
           {/* Income Section */}
           {incomeTransactions.length > 0 && (
-            <View style={styles.transactionSection}>
-              <View style={styles.sectionHeader}>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>Income</Text>
+            <View style={homeStyles.transactionSection}>
+              <View style={homeStyles.sectionHeader}>
+                <Text style={[homeStyles.sectionTitle, { color: colors.text }]}>Income</Text>
                 {incomeTransactions.length > 5 && (
                   <TouchableOpacity onPress={() => navigation.navigate('AllTransactions', { transactionType: 'income' })}>
-                    <Text style={[styles.viewAllLink, { color: colors.primary }]}>View All</Text>
+                    <Text style={[homeStyles.viewAllLink, { color: colors.primary }]}>View All</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -119,24 +119,10 @@ export const HomeScreen: React.FC<any> = ({ navigation }) => {
       )}
       </ScrollView>
 
-      <TouchableOpacity style={[styles.addButton, { 
-        width: 56, 
-        height: 56, 
-        borderRadius: 28, 
-        padding: 0, 
-        justifyContent: 'center', 
-        alignItems: 'center',
-        position: 'absolute',
-        bottom: 20,
-        right: 20,
-        elevation: 8,
-        shadowColor: colors.border,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
+      <TouchableOpacity style={[homeStyles.addButton, commonStyles.fab, { 
         backgroundColor: colors.primary
-      }]} onPress={() => navigation.navigate('Add')}>
-        <Text style={[styles.addButtonText, { fontSize: 24, marginBottom: 0 }]}>+</Text>
+      }]} onPress={() => navigation.navigate('AddTransaction')}>
+        <Text style={[homeStyles.addButtonText, { fontSize: 24, marginBottom: 0 }]}>+</Text>
       </TouchableOpacity>
     </View>
   );

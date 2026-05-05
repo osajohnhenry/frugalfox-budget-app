@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Alert, ScrollView, RefreshControl } from 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTransactions } from '../context/TransactionContext';
 import { useTheme } from '../context/ThemeContext';
-import { commonStyles } from '../styles/screenStyles';
+import { commonStyles, goalListStyles } from '../styles/screenStyles';
 import { getUnicodeIcon } from '../utils/icons';
 
 export const GoalListScreen: React.FC<any> = ({ navigation }) => {
@@ -15,7 +15,7 @@ export const GoalListScreen: React.FC<any> = ({ navigation }) => {
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity 
-          style={{ padding: 8, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.18)', marginRight: 12 }}
+          style={goalListStyles.headerButton}
           onPress={() => navigation.getParent()?.navigate('Settings')}
         >
           <MaterialCommunityIcons name="cog" size={22} color={colors.headerText} />
@@ -75,17 +75,14 @@ export const GoalListScreen: React.FC<any> = ({ navigation }) => {
           }
         ]}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-          <View style={{
-            width: 50,
-            height: 50,
-            borderRadius: 25,
-            backgroundColor: isCompleted ? '#2ecc71' : colors.primary,
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginRight: 16
-          }}>
-            <Text style={{ fontSize: 24, color: '#fff' }}>
+        <View style={goalListStyles.goalInfo}>
+          <View style={[
+            goalListStyles.goalIconContainer,
+            {
+              backgroundColor: isCompleted ? '#2ecc71' : colors.primary,
+            }
+          ]}>
+            <Text style={goalListStyles.goalIconText}>
               {getUnicodeIcon(goal.icon)}
             </Text>
           </View>
@@ -97,7 +94,7 @@ export const GoalListScreen: React.FC<any> = ({ navigation }) => {
             ]}>
               {goal.name}
               {isCompleted && (
-                <Text style={{ color: '#2ecc71', fontSize: 12, marginLeft: 8 }}>
+                <Text style={[goalListStyles.completedBadge, { color: '#2ecc71' }]}>
                   ✓ COMPLETED
                 </Text>
               )}
@@ -106,16 +103,16 @@ export const GoalListScreen: React.FC<any> = ({ navigation }) => {
               {goalTransactions.length} income transaction{goalTransactions.length !== 1 ? 's' : ''}
             </Text>
           </View>
-          <View style={{ flexDirection: 'row' }}>
+          <View style={goalListStyles.goalActions}>
             <TouchableOpacity
               onPress={() => navigation.navigate('EditGoal', { goal })}
-              style={{ padding: 8 }}
+              style={goalListStyles.actionButton}
             >
               <MaterialCommunityIcons name="pencil" size={20} color={colors.primary} />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => handleDeleteGoal(goal.id, goal.name)}
-              style={{ padding: 8 }}
+              style={goalListStyles.actionButton}
             >
               <MaterialCommunityIcons name="delete" size={20} color="#e74c3c" />
             </TouchableOpacity>
@@ -123,12 +120,8 @@ export const GoalListScreen: React.FC<any> = ({ navigation }) => {
         </View>
 
         {/* Progress Bar */}
-        <View style={{ marginBottom: 8 }}>
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginBottom: 8
-          }}>
+        <View style={goalListStyles.progressContainer}>
+          <View style={goalListStyles.progressRow}>
             <Text style={[commonStyles.textSmall, { color: colors.text }]}>
               Progress: ₱{goal.currentAmount.toFixed(2)} / ₱{goal.targetAmount.toFixed(2)}
             </Text>
@@ -140,29 +133,28 @@ export const GoalListScreen: React.FC<any> = ({ navigation }) => {
               {progressPercentage.toFixed(1)}%
             </Text>
           </View>
-          <View style={{
-            height: 8,
-            backgroundColor: colors.border,
-            borderRadius: 4,
-            overflow: 'hidden'
-          }}>
-            <View style={{
-              height: '100%',
-              width: `${progressPercentage}%`,
-              backgroundColor: isCompleted ? '#2ecc71' : colors.primary,
-              borderRadius: 4
-            }} />
+          <View style={[
+            goalListStyles.progressBar,
+            { backgroundColor: colors.border }
+          ]}>
+            <View style={[
+              goalListStyles.progressFill,
+              {
+                width: `${progressPercentage}%`,
+                backgroundColor: isCompleted ? '#2ecc71' : colors.primary,
+              }
+            ]} />
           </View>
         </View>
 
         {/* Recent Transactions */}
         {goalTransactions.length > 0 && (
-          <View style={{
-            borderTopWidth: 1,
-            borderTopColor: colors.border,
-            paddingTop: 12,
-            marginTop: 8
-          }}>
+          <View style={[
+            goalListStyles.recentTransactions,
+            {
+              borderTopColor: colors.border,
+            }
+          ]}>
             <Text style={[
               commonStyles.textSmall,
               commonStyles.semiBold,
@@ -171,12 +163,8 @@ export const GoalListScreen: React.FC<any> = ({ navigation }) => {
               Recent Income
             </Text>
             {goalTransactions.slice(0, 3).map((transaction) => (
-              <View key={transaction.id} style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginBottom: 6
-              }}>
-                <MaterialCommunityIcons name="trending-up" size={16} color="#2ecc71" style={{ marginRight: 8 }} />
+              <View key={transaction.id} style={goalListStyles.recentTransactionItem}>
+                <MaterialCommunityIcons name="trending-up" size={16} color="#2ecc71" style={goalListStyles.transactionIcon} />
                 <Text style={[
                   commonStyles.textSmall,
                   { color: colors.text, flex: 1 }
@@ -194,8 +182,8 @@ export const GoalListScreen: React.FC<any> = ({ navigation }) => {
             ))}
             {goalTransactions.length > 3 && (
               <Text style={[
-                commonStyles.textSmall,
-                { color: colors.textSecondary, textAlign: 'center', marginTop: 4 }
+                goalListStyles.moreText,
+                { color: colors.textSecondary }
               ]}>
                 +{goalTransactions.length - 3} more...
               </Text>
@@ -208,14 +196,14 @@ export const GoalListScreen: React.FC<any> = ({ navigation }) => {
 
   return (
     <ScrollView
-      style={{ backgroundColor: colors.background }}
+      style={[goalListStyles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={{ padding: 16 }}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
       {/* Header */}
-      <View style={styles.header}>
+      <View style={goalListStyles.header}>
         <Text style={[commonStyles.textLarge, commonStyles.semiBold, { color: colors.text }]}>
           Your Goals
         </Text>
@@ -228,65 +216,44 @@ export const GoalListScreen: React.FC<any> = ({ navigation }) => {
       {goals.length > 0 ? (
         <>
           <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: colors.primary,
-              paddingVertical: 16,
-              paddingHorizontal: 24,
-              borderRadius: 12,
-              marginBottom: 16,
-              elevation: 2,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.1,
-              shadowRadius: 4
-            }}
+            style={[goalListStyles.addButton, { backgroundColor: colors.primary }]}
             onPress={() => navigation.navigate('AddGoal')}
           >
-            <MaterialCommunityIcons name="plus" size={20} color="#fff" style={{ marginRight: 8 }} />
-            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>Add New Goal</Text>
+            <MaterialCommunityIcons name="plus" size={20} color="#fff" style={goalListStyles.addButtonText} />
+            <Text style={goalListStyles.addButtonText}>Add New Goal</Text>
           </TouchableOpacity>
           {goals.map(renderGoalItem)}
         </>
       ) : (
         <View style={[
           commonStyles.card,
+          goalListStyles.emptyState,
           {
             backgroundColor: colors.card,
-            alignItems: 'center',
-            paddingVertical: 40
           }
         ]}>
-          <MaterialCommunityIcons name="target" size={48} color={colors.textSecondary} style={{ marginBottom: 16 }} />
+          <MaterialCommunityIcons name="target" size={48} color={colors.textSecondary} style={goalListStyles.emptyIcon} />
           <Text style={[
             commonStyles.textMedium,
             commonStyles.semiBold,
-            { color: colors.text, marginBottom: 8 }
+            goalListStyles.emptyTitle,
+            { color: colors.text }
           ]}>
             No Goals Yet
           </Text>
           <Text style={[
             commonStyles.textSmall,
-            { color: colors.textSecondary, textAlign: 'center', paddingHorizontal: 32 }
+            goalListStyles.emptyText,
+            { color: colors.textSecondary }
           ]}>
             Create your first goal to start tracking your savings progress. Link income transactions to goals to see them grow!
           </Text>
           <TouchableOpacity
-            style={{
-              marginTop: 20,
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: colors.primary,
-              paddingHorizontal: 20,
-              paddingVertical: 12,
-              borderRadius: 20
-            }}
+            style={[goalListStyles.createButton, { backgroundColor: colors.primary }]}
             onPress={() => navigation.navigate('AddGoal')}
           >
-            <MaterialCommunityIcons name="plus" size={16} color="#fff" style={{ marginRight: 8 }} />
-            <Text style={{ color: '#fff', fontSize: 14, fontWeight: '600' }}>Create Goal</Text>
+            <MaterialCommunityIcons name="plus" size={16} color="#fff" style={goalListStyles.createButtonText} />
+            <Text style={goalListStyles.createButtonText}>Create Goal</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -294,11 +261,3 @@ export const GoalListScreen: React.FC<any> = ({ navigation }) => {
   );
 };
 
-const styles = {
-  headerButton: {
-    padding: 8,
-  },
-  header: {
-    marginBottom: 24,
-  },
-};

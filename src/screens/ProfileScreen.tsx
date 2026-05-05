@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Alert, TextInput } from 'reac
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { commonStyles } from '../styles/screenStyles';
+import { commonStyles, profileStyles } from '../styles/screenStyles';
 import { useTheme } from '../context/ThemeContext';
 
 type Props = NativeStackScreenProps<any, 'Profile'>;
@@ -50,61 +50,51 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: colors.background }} contentContainerStyle={{ padding: 16 }}>
-      <View style={{ marginBottom: 24 }}>
-        <Text style={{ fontSize: 24, fontWeight: 'bold', color: colors.text, marginBottom: 8 }}>
+    <ScrollView style={[profileStyles.container, { backgroundColor: colors.background }]}>
+      <View style={profileStyles.header}>
+        <Text style={[profileStyles.title, { color: colors.text }]}>
           Profile
         </Text>
-        <Text style={{ fontSize: 14, color: colors.textSecondary }}>
+        <Text style={[profileStyles.subtitle, { color: colors.textSecondary }]}>
           Set your name and profile picture
         </Text>
       </View>
 
       {/* User Info Card */}
-      <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16 }]}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+      <View style={[commonStyles.card, profileStyles.profileCard, { backgroundColor: colors.card }]}>
+        <View style={profileStyles.avatarContainer}>
           <TouchableOpacity 
-            style={{
-              width: 60,
-              height: 60,
-              borderRadius: 30,
-              backgroundColor: colors.primary,
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginRight: 16
-            }}
+            style={[profileStyles.avatarButton, { backgroundColor: colors.primary }]}
             onPress={handlePickImage}
           >
-            <MaterialCommunityIcons name="account" size={30} color="#fff" />
+            <MaterialCommunityIcons name="account" size={30} color="#fff" style={profileStyles.avatarIcon} />
           </TouchableOpacity>
-          <View style={{ flex: 1 }}>
+          <View style={profileStyles.profileInfo}>
             {isEditingName ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={profileStyles.nameEditContainer}>
                 <TextInput
-                  style={{
-                    flex: 1,
-                    fontSize: 18,
-                    fontWeight: '600',
-                    color: colors.text,
-                    borderBottomWidth: 1,
-                    borderBottomColor: colors.primary,
-                    marginRight: 8
-                  }}
+                  style={[
+                    profileStyles.nameInput,
+                    {
+                      color: colors.text,
+                      borderBottomColor: colors.primary,
+                    }
+                  ]}
                   value={tempName}
                   onChangeText={setTempName}
                   autoFocus
                   onSubmitEditing={handleNameSave}
                 />
-                <TouchableOpacity onPress={handleNameSave} style={{ marginRight: 8 }}>
+                <TouchableOpacity onPress={handleNameSave} style={profileStyles.saveButton}>
                   <MaterialCommunityIcons name="check" size={20} color="#2ecc71" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleNameCancel}>
+                <TouchableOpacity onPress={handleNameCancel} style={profileStyles.cancelButton}>
                   <MaterialCommunityIcons name="close" size={20} color="#e74c3c" />
                 </TouchableOpacity>
               </View>
             ) : (
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '600', color: colors.text, flex: 1 }}>
+              <View style={profileStyles.nameDisplayContainer}>
+                <Text style={[profileStyles.nameText, { color: colors.text }]}>
                   {userName}
                 </Text>
                 <TouchableOpacity onPress={handleNameEdit}>
@@ -112,7 +102,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
             )}
-            <Text style={{ fontSize: 14, color: colors.textSecondary, marginTop: 4 }}>
+            <Text style={[profileStyles.avatarHint, { color: colors.textSecondary }]}>
               Tap avatar to change profile picture
             </Text>
           </View>

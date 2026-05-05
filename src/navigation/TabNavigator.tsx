@@ -1,9 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { View, Text, Image } from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { HomeScreen } from '../screens/HomeScreen';
-import { AddTransactionScreen } from '../screens/AddTransactionScreen';
 import { CategoriesScreen } from '../screens/Categories';
 import { ChartsScreen } from '../screens/Charts';
 import { BudgetScreen } from '../screens/BudgetScreen';
@@ -12,11 +11,18 @@ import { useTheme } from '../context/ThemeContext';
 
 const Tab = createBottomTabNavigator();
 
-const CustomHeader = ({ title }: { title: string }) => {
+const CustomHeader = ({ title, showBackButton = false, navigation }: { title: string; showBackButton?: boolean; navigation?: any }) => {
   const { colors } = useTheme();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <Image source={require('../../assets/frugalfox.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
+      {showBackButton && navigation && (
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()} 
+          style={{ marginRight: 10 }}
+        >
+          <MaterialCommunityIcons name="arrow-left" size={24} color={colors.headerText} />
+        </TouchableOpacity>
+      )}
       <Text style={{ color: colors.headerText, fontSize: 18, fontWeight: 'bold' }}>{title}</Text>
     </View>
   );
@@ -34,8 +40,6 @@ export const TabNavigator = () => {
 
           if (route.name === 'Home') {
             iconName = 'home';
-          } else if (route.name === 'Add') {
-            iconName = 'plus';
           } else if (route.name === 'Categories') {
             iconName = 'tag';
           } else if (route.name === 'Charts') {
@@ -64,17 +68,7 @@ export const TabNavigator = () => {
         headerTintColor: colors.headerText
       }} 
     />
-    <Tab.Screen 
-      name="Add"
-      component={AddTransactionScreen}
-      options={{
-        headerShown: true,
-        headerTitle: () => <CustomHeader title="Add Transaction" />,
-        headerStyle: { backgroundColor: colors.header },
-        headerTintColor: colors.headerText
-      }}
-    />
-    <Tab.Screen 
+        <Tab.Screen 
       name="Categories" 
       component={CategoriesScreen}
       options={{

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -27,19 +27,7 @@ export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
   const [amountFocused, setAmountFocused] = useState(false);
   const [noteFocused, setNoteFocused] = useState(false);
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity 
-          style={{ padding: 8, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.18)', marginRight: 12 }}
-          onPress={() => navigation.getParent()?.navigate('Settings')}
-        >
-          <MaterialCommunityIcons name="cog" size={22} color={colors.headerText} />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation, colors]);
-
+  
   useEffect(() => {
     // Reset category, budget, and goal when type changes
     setCategory('');

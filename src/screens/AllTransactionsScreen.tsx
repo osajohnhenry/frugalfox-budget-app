@@ -1,10 +1,10 @@
 import React, { useLayoutEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTransactions } from '../context/TransactionContext';
 import { useTheme } from '../context/ThemeContext';
 import { Transaction } from '../types';
-import { homeStyles as styles } from '../styles/screenStyles';
+import { homeStyles, commonStyles } from '../styles/screenStyles';
 
 const currencySymbol = '₱';
 
@@ -12,17 +12,17 @@ const TransactionItem: React.FC<{ item: Transaction; onPress: () => void }> = ({
   const { colors } = useTheme();
   
   return (
-    <TouchableOpacity style={[styles.txItem, { backgroundColor: colors.card }]} onPress={onPress}>
-      <View style={styles.txItemContent}>
+    <TouchableOpacity style={[homeStyles.txItem, { backgroundColor: colors.card }]} onPress={onPress}>
+      <View style={homeStyles.txItemContent}>
         <View>
-          <Text style={[styles.txCategory, { color: colors.text }]}>{item.category}</Text>
-          <Text style={[styles.txDate, { color: colors.textSecondary }]}>{new Date(item.date).toLocaleDateString()}</Text>
+          <Text style={[homeStyles.txCategory, { color: colors.text }]}>{item.category}</Text>
+          <Text style={[homeStyles.txDate, { color: colors.textSecondary }]}>{new Date(item.date).toLocaleDateString()}</Text>
         </View>
-        <Text style={[styles.txAmount, item.type === 'income' ? styles.income : styles.expense]}>
+        <Text style={[homeStyles.txAmount, item.type === 'income' ? homeStyles.income : homeStyles.expense]}>
           {item.type === 'income' ? '+' : '-'}{currencySymbol}{item.amount.toFixed(2)}
         </Text>
       </View>
-      <MaterialCommunityIcons name="pencil" size={16} color={colors.textSecondary} style={styles.editIcon} />
+      <MaterialCommunityIcons name="pencil" size={16} color={colors.textSecondary} style={homeStyles.editIcon} />
     </TouchableOpacity>
   );
 };
@@ -48,10 +48,10 @@ export const AllTransactionsScreen: React.FC<any> = ({ route, navigation }) => {
     });
   }, [navigation, transactionType, colors]);
 
-  if (loading) return <ActivityIndicator size="large" style={styles.loadingContainer} />;
+  if (loading) return <ActivityIndicator size="large" style={homeStyles.loadingContainer} />;
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.background }}>
       <FlatList
         data={filtered}
         keyExtractor={(item) => item.id}
@@ -62,12 +62,12 @@ export const AllTransactionsScreen: React.FC<any> = ({ route, navigation }) => {
           />
         )}
         ListEmptyComponent={
-          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+          <Text style={[homeStyles.emptyText, { color: colors.textSecondary }]}>
             No {transactionType === 'income' ? 'income' : 'expenses'} transactions yet.
           </Text>
         }
-        contentContainerStyle={styles.list}
+        contentContainerStyle={homeStyles.list}
       />
-    </View>
+    </ScrollView>
   );
 };

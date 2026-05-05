@@ -15,6 +15,7 @@ import { AddBudgetScreen } from './src/screens/AddBudgetScreen';
 import { EditBudgetScreen } from './src/screens/EditBudgetScreen';
 import { AddGoalScreen } from './src/screens/AddGoalScreen';
 import { EditGoalScreen } from './src/screens/EditGoalScreen';
+import { AddTransactionScreen } from './src/screens/AddTransactionScreen';
 import { TabNavigator } from './src/navigation/TabNavigator';
 import { Transaction } from './src/types';
 import { Budget } from './src/types';
@@ -28,6 +29,7 @@ type RootStackParamList = {
   Appearance: undefined;
   AllTransactions: { transactionType: 'income' | 'expense' };
   EditTransaction: { transaction: Transaction };
+  AddTransaction: undefined;
   AddCategory: { transactionType: 'income' | 'expense' };
   EditCategory: { transactionType: 'income' | 'expense'; categoryName: string; icon: string };
   ExportChart: undefined;
@@ -64,6 +66,7 @@ export default function App() {
           <Stack.Screen name="Appearance" component={AppearanceScreen} options={{ title: 'Appearance' }} />
           <Stack.Screen name="AllTransactions" component={AllTransactionsScreen} options={{ headerShown: false }} />
           <Stack.Screen name="EditTransaction" component={EditTransactionScreen} options={{ title: 'Edit Transaction' }} />
+          <Stack.Screen name="AddTransaction" component={AddTransactionScreen} options={{ title: 'Add Transaction', headerShown: true }} />
           <Stack.Screen name="AddCategory" component={AddCategoryScreen} options={{ title: 'Add Category' }} />
           <Stack.Screen name="EditCategory" component={EditCategoryScreen} options={{ title: 'Edit Category' }} />
           <Stack.Screen name="ExportChart" component={ExportChartScreen} />
