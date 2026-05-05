@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useLayoutEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Modal } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system/legacy';
@@ -9,6 +8,7 @@ import { useTransactions } from '../context/TransactionContext';
 import { useTheme } from '../context/ThemeContext';
 import { chartsStyles as styles } from '../styles/screenStyles';
 import { getUnicodeIcon } from '../utils/icons';
+import { DatePicker } from '../components/DatePicker';
 
 export const ExportChartScreen: React.FC<any> = ({ navigation }) => {
   const { transactions, categories } = useTransactions();
@@ -16,8 +16,6 @@ export const ExportChartScreen: React.FC<any> = ({ navigation }) => {
   const [exportType, setExportType] = useState<'single' | 'range'>('single');
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false);
   const [showMonthYearPicker, setShowMonthYearPicker] = useState(false);
   const [tempYear, setTempYear] = useState(new Date().getFullYear());
   const [tempMonth, setTempMonth] = useState(new Date().getMonth());
@@ -36,21 +34,16 @@ export const ExportChartScreen: React.FC<any> = ({ navigation }) => {
     });
   }, [navigation]);
 
-  const handleStartDateChange = (event: any, selectedDate?: Date) => {
-    setShowStartPicker(false);
-    if (selectedDate) {
-      setStartDate(selectedDate);
-      if (selectedDate > endDate) {
-        setEndDate(selectedDate);
-      }
+
+  const handleStartDateChange = (selectedDate: Date) => {
+    setStartDate(selectedDate);
+    if (selectedDate > endDate) {
+      setEndDate(selectedDate);
     }
   };
 
-  const handleEndDateChange = (event: any, selectedDate?: Date) => {
-    setShowEndPicker(false);
-    if (selectedDate) {
-      setEndDate(selectedDate);
-    }
+  const handleEndDateChange = (selectedDate: Date) => {
+    setEndDate(selectedDate);
   };
 
   const handleMonthYearChange = () => {
@@ -442,9 +435,8 @@ export const ExportChartScreen: React.FC<any> = ({ navigation }) => {
 
       const { uri } = await Print.printToFileAsync({ html });
 
-      // Rename the file to analytics-report.pdf
       const originalUri = uri;
-      const fileName = 'analytics-report.pdf';
+      const fileName = 'budget-report.pdf';
       
       try {
         // Get the directory of the original file
@@ -549,32 +541,31 @@ export const ExportChartScreen: React.FC<any> = ({ navigation }) => {
           {exportType === 'single' ? 'Select Month' : 'Select Date Range'}
         </Text>
 
-        <TouchableOpacity 
-          style={{
-            padding: 14,
-            borderRadius: 8,
-            borderWidth: 1,
-            borderColor: colors.border,
-            backgroundColor: colors.card,
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginBottom: exportType === 'range' ? 12 : 0
-          }} 
-          onPress={() => exportType === 'single' ? openMonthYearPicker() : setShowStartPicker(true)}
-        >
-          <MaterialCommunityIcons name="calendar" size={20} color={colors.primary} style={{ marginRight: 10 }} />
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 12, color: colors.textSecondary, marginBottom: 4 }}>
-              {exportType === 'single' ? 'Month' : 'Start Date'}
-            </Text>
-            <Text style={{ fontSize: 16, color: '#333', fontWeight: '500' }}>
-              {exportType === 'single'
-                ? startDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-                : startDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
-            </Text>
-          </View>
-          <MaterialCommunityIcons name="chevron-right" size={20} color="#999" />
-        </TouchableOpacity>
+        {exportType === 'single' && (
+          <TouchableOpacity 
+            style={{
+              padding: 14,
+              borderRadius: 8,
+              borderWidth: 1,
+              borderColor: colors.border,
+              backgroundColor: colors.card,
+              flexDirection: 'row',
+              alignItems: 'center'
+            }} 
+            onPress={openMonthYearPicker}
+          >
+            <MaterialCommunityIcons name="calendar" size={20} color={colors.primary} style={{ marginRight: 10 }} />
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 12, color: colors.textSecondary, marginBottom: 4 }}>
+                Month
+              </Text>
+              <Text style={{ fontSize: 16, color: '#333', fontWeight: '500' }}>
+                {startDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              </Text>
+            </View>
+            <MaterialCommunityIcons name="chevron-right" size={20} color="#999" />
+          </TouchableOpacity>
+        )}
 
         {/* Custom Month/Year Picker Modal */}
         <Modal
@@ -653,47 +644,22 @@ export const ExportChartScreen: React.FC<any> = ({ navigation }) => {
           </View>
         </Modal>
 
-        {showStartPicker && (
-          <DateTimePicker
+        {exportType === 'range' && (
+          <DatePicker
             value={startDate}
-            mode="date"
-            display="default"
-            onValueChange={handleStartDateChange}
+            onChange={handleStartDateChange}
+            label="Start Date"
+            style={{ marginBottom: 12 }}
           />
         )}
 
         {exportType === 'range' && (
           <>
-            <TouchableOpacity 
-              style={{
-                padding: 14,
-                borderRadius: 8,
-                borderWidth: 1,
-                borderColor: colors.border,
-                backgroundColor: colors.card,
-                flexDirection: 'row',
-                alignItems: 'center'
-              }} 
-              onPress={() => setShowEndPicker(true)}
-            >
-              <MaterialCommunityIcons name="calendar" size={20} color={colors.primary} style={{ marginRight: 10 }} />
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 12, color: colors.textSecondary, marginBottom: 4 }}>End Date</Text>
-                <Text style={{ fontSize: 16, color: colors.text, fontWeight: '500' }}>
-                  {endDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
-                </Text>
-              </View>
-              <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textSecondary} />
-            </TouchableOpacity>
-
-            {showEndPicker && (
-              <DateTimePicker
-                value={endDate}
-                mode="date"
-                display="default"
-                onValueChange={handleEndDateChange}
-              />
-            )}
+            <DatePicker
+              value={endDate}
+              onChange={handleEndDateChange}
+              label="End Date"
+            />
           </>
         )}
       </View>

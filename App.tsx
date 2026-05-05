@@ -16,6 +16,9 @@ import { EditBudgetScreen } from './src/screens/EditBudgetScreen';
 import { AddGoalScreen } from './src/screens/AddGoalScreen';
 import { EditGoalScreen } from './src/screens/EditGoalScreen';
 import { AddTransactionScreen } from './src/screens/AddTransactionScreen';
+import { BudgetTransactionsScreen } from './src/screens/BudgetTransactionsScreen';
+import { GoalTransactionsScreen } from './src/screens/GoalTransactionsScreen';
+import { BackupRestoreScreen } from './src/screens/BackupRestoreScreen';
 import { TabNavigator } from './src/navigation/TabNavigator';
 import { Transaction } from './src/types';
 import { Budget } from './src/types';
@@ -27,6 +30,7 @@ type RootStackParamList = {
   Settings: undefined;
   Profile: undefined;
   Appearance: undefined;
+  BackupRestore: undefined;
   AllTransactions: { transactionType: 'income' | 'expense' };
   EditTransaction: { transaction: Transaction };
   AddTransaction: undefined;
@@ -37,6 +41,8 @@ type RootStackParamList = {
   EditBudget: { budget: Budget };
   AddGoal: undefined;
   EditGoal: { goal: Goal };
+  BudgetTransactions: { budgetId: string; budgetName: string };
+  GoalTransactions: { goalId: string; goalName: string };
 };
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -74,6 +80,9 @@ export default function App() {
           <Stack.Screen name="EditBudget" component={EditBudgetScreen} options={{ title: 'Edit Budget' }} />
           <Stack.Screen name="AddGoal" component={AddGoalScreen} options={{ title: 'Add Goal' }} />
           <Stack.Screen name="EditGoal" component={EditGoalScreen} options={{ title: 'Edit Goal' }} />
+          <Stack.Screen name="BudgetTransactions" component={BudgetTransactionsScreen} />
+          <Stack.Screen name="GoalTransactions" component={GoalTransactionsScreen} />
+          <Stack.Screen name="BackupRestore" component={BackupRestoreScreen} options={{ title: 'Backup & Restore' }} />
         </Stack.Navigator>
         </NavigationContainer>
       </TransactionProvider>

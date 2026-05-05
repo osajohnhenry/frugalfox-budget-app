@@ -1,10 +1,11 @@
 import React, { useLayoutEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTransactions } from '../context/TransactionContext';
 import { useTheme } from '../context/ThemeContext';
 import { Transaction } from '../types';
 import { homeStyles, commonStyles } from '../styles/screenStyles';
+import { getUnicodeIcon } from '../utils/icons';
 
 const currencySymbol = '₱';
 
@@ -15,6 +16,7 @@ const TransactionItem: React.FC<{ item: Transaction; onPress: () => void }> = ({
     <TouchableOpacity style={[homeStyles.txItem, { backgroundColor: colors.card }]} onPress={onPress}>
       <View style={homeStyles.txItemContent}>
         <View>
+          <Text style={commonStyles.unicodeIcon}>{getUnicodeIcon(item.categoryIcon || 'help-circle')}</Text>
           <Text style={[homeStyles.txCategory, { color: colors.text }]}>{item.category}</Text>
           <Text style={[homeStyles.txDate, { color: colors.textSecondary }]}>{new Date(item.date).toLocaleDateString()}</Text>
         </View>
@@ -51,23 +53,22 @@ export const AllTransactionsScreen: React.FC<any> = ({ route, navigation }) => {
   if (loading) return <ActivityIndicator size="large" style={homeStyles.loadingContainer} />;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: colors.background }}>
-      <FlatList
-        data={filtered}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TransactionItem 
-            item={item} 
-            onPress={() => navigation.navigate('EditTransaction', { transaction: item })}
-          />
-        )}
-        ListEmptyComponent={
-          <Text style={[homeStyles.emptyText, { color: colors.textSecondary }]}>
-            No {transactionType === 'income' ? 'income' : 'expenses'} transactions yet.
-          </Text>
-        }
-        contentContainerStyle={homeStyles.list}
-      />
-    </ScrollView>
+    <FlatList
+      style={{ flex: 1, backgroundColor: colors.background }}
+      data={filtered}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <TransactionItem 
+          item={item} 
+          onPress={() => navigation.navigate('EditTransaction', { transaction: item })}
+        />
+      )}
+      ListEmptyComponent={
+        <Text style={[homeStyles.emptyText, { color: colors.textSecondary }]}>
+          No {transactionType === 'income' ? 'income' : 'expenses'} transactions yet.
+        </Text>
+      }
+      contentContainerStyle={homeStyles.list}
+    />
   );
 };

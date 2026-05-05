@@ -8,10 +8,12 @@ interface TransactionContextType {
   addTransaction: (tx: Omit<Transaction, 'id'>) => void;
   editTransaction: (id: string, tx: Omit<Transaction, 'id'>) => Promise<boolean>;
   deleteTransaction: (id: string) => Promise<boolean>;
+  setTransactions: (transactions: Transaction[]) => void;
   categories: Categories;
   addCategory: (type: TransactionType, category: string, icon: string) => boolean;
   editCategory: (type: TransactionType, oldName: string, newName: string, newIcon: string) => boolean;
   deleteCategory: (type: TransactionType, name: string) => boolean;
+  setCategories: (categories: Categories) => void;
   budgets: Budget[];
   addBudget: (budget: Omit<Budget, 'id'>) => void;
   editBudget: (id: string, budget: Omit<Budget, 'id'>) => Promise<boolean>;
@@ -19,12 +21,14 @@ interface TransactionContextType {
   getBudgetSpending: (budgetId: string) => number;
   getBudgetTransactions: (budgetId: string, limit?: number) => Transaction[];
   updateBudgetProgress: (budgetId: string) => void;
+  setBudgets: (budgets: Budget[]) => void;
   goals: Goal[];
   addGoal: (goal: Omit<Goal, 'id'>) => void;
   editGoal: (id: string, goal: Omit<Goal, 'id'>) => Promise<boolean>;
   deleteGoal: (id: string) => Promise<boolean>;
   getGoalProgress: (goalId: string) => number;
   updateGoalProgress: (goalId: string, amount: number) => void;
+  setGoals: (goals: Goal[]) => void;
   balance: number;
   loading: boolean;
 }
@@ -314,10 +318,12 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({ childre
       addTransaction, 
       editTransaction, 
       deleteTransaction, 
+      setTransactions,
       categories, 
       addCategory, 
       editCategory, 
       deleteCategory, 
+      setCategories,
       budgets, 
       addBudget, 
       editBudget, 
@@ -325,12 +331,14 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({ childre
       getBudgetSpending,
       getBudgetTransactions,
       updateBudgetProgress,
+      setBudgets,
       goals, 
       addGoal, 
       editGoal, 
       deleteGoal, 
       getGoalProgress, 
       updateGoalProgress,
+      setGoals,
       balance, 
       loading 
     }}>

@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTransactions } from '../context/TransactionContext';
 import { useTheme } from '../context/ThemeContext';
 import { TransactionType } from '../types';
-import { categoriesStyles, commonStyles, categoriesScreenStyles } from '../styles/screenStyles';
+import { categoriesStyles, commonStyles, categoriesScreenStyles, homeStyles } from '../styles/screenStyles';
 import { getUnicodeIcon } from '../utils/icons';
 
 export const CategoriesScreen: React.FC<any> = ({ navigation }) => {
@@ -16,10 +16,10 @@ export const CategoriesScreen: React.FC<any> = ({ navigation }) => {
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity 
-          style={categoriesScreenStyles.headerButton}
-          onPress={() => navigation.navigate('AddCategory')}
+          style={homeStyles.headerButton}
+          onPress={() => navigation.getParent()?.navigate('Settings')}
         >
-          <MaterialCommunityIcons name="plus" size={20} color={colors.headerText} />
+          <MaterialCommunityIcons name="cog" size={22} color={colors.headerText} />
         </TouchableOpacity>
       ),
     });

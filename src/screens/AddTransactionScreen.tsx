@@ -1,16 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTransactions } from '../context/TransactionContext';
 import { useTheme } from '../context/ThemeContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { addTransactionStyles as styles, commonStyles } from '../styles/screenStyles';
+import { addTransactionStyles as styles, commonStyles, budgetGoalStyles } from '../styles/screenStyles';
 import { getUnicodeIcon } from '../utils/icons';
+import { DatePicker } from '../components/DatePicker';
 
 
 export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
   const { colors } = useTheme();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: 'Add Transaction',
+      headerStyle: { backgroundColor: colors.header },
+      headerTintColor: colors.headerText,
+      headerTitleStyle: { color: colors.headerText, fontSize: 18, fontWeight: 'bold' },
+      headerBackVisible: true,
+      headerRight: () => (
+        <TouchableOpacity 
+          style={budgetGoalStyles.headerButton}
+          onPress={() => navigation.navigate('Settings')}
+        >
+          <MaterialCommunityIcons name="cog" size={22} color={colors.headerText} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, colors]);
   const { addTransaction, categories, budgets, goals } = useTransactions();
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<'income' | 'expense'>('expense');
@@ -22,7 +40,6 @@ export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
   const [budgetDropdownOpen, setBudgetDropdownOpen] = useState(false);
   const [goalDropdownOpen, setGoalDropdownOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [amountFocused, setAmountFocused] = useState(false);
   const [noteFocused, setNoteFocused] = useState(false);
@@ -35,20 +52,6 @@ export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
     setGoalId('');
   }, [type]);
 
-  const onDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(false);
-    // Handle both old and new API formats
-    if (selectedDate) {
-      setSelectedDate(selectedDate);
-    } else if (event && event.type === 'set' && event.nativeEvent && event.nativeEvent.timestamp) {
-      // For some platforms, the date might be in event.nativeEvent
-      setSelectedDate(new Date(event.nativeEvent.timestamp));
-    }
-  };
-
-  const onDatePickerDismiss = () => {
-    setShowDatePicker(false);
-  };
 
   const handleSave = async () => {
     const parsedAmount = parseFloat(amount);
@@ -104,9 +107,12 @@ export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
         keyboardShouldPersistTaps="handled"
         style={{ backgroundColor: colors.background }}
       >
-        {/* Enhanced Type Toggle Card */}
-        <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16 }]}>
-          <View style={{ flexDirection: 'row', backgroundColor: colors.border, borderRadius: 12, padding: 4 }}>
+        {/* Single Card Container */}
+        <View style={[commonStyles.card, { backgroundColor: colors.card, padding: 20 }]}>
+          {/* Type Toggle */}
+          <View style={{ marginBottom: 20 }}>
+            <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 12 }]}>Transaction Type</Text>
+            <View style={{ flexDirection: 'row', backgroundColor: colors.border, borderRadius: 12, padding: 4 }}>
             <TouchableOpacity 
               style={{
                 flex: 1,
@@ -157,90 +163,60 @@ export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
                 Income
               </Text>
             </TouchableOpacity>
+            </View>
           </View>
-        </View>
 
-        {/* Enhanced Date Picker */}
-        <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16, marginTop: -30 }]}>
-          <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>
-            Date
-          </Text>
-          <TouchableOpacity 
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              padding: 16,
-              backgroundColor: colors.card,
-              borderColor: colors.border,
-              borderWidth: 1.5,
-              borderRadius: 12
-            }} 
-            onPress={() => setShowDatePicker(true)}
-          >
-            <MaterialCommunityIcons name="calendar" size={20} color={colors.primary} style={{ marginRight: 12 }} />
-            <Text style={{ color: colors.text, fontWeight: '500', fontSize: 16 }}>
-              {selectedDate.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
-            </Text>
-          </TouchableOpacity>
-        </View>
-        {showDatePicker && (
-          <DateTimePicker
-            value={selectedDate}
-            mode="date"
-            display="default"
-            onValueChange={onDateChange}
-            onDismiss={onDatePickerDismiss}
-            maximumDate={new Date()}
-          />
-        )}
-
-        {/* Enhanced Amount Input */}
-        <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16, marginTop: -30 }]}>
-          <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>
-            Amount
-          </Text>
-          <View style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: colors.card,
-            borderColor: colors.border,
-            borderWidth: 1.5,
-            borderRadius: 12,
-            paddingHorizontal: 16,
-            paddingVertical: 4
-          }}>
-            <Text style={{ color: colors.primary, fontSize: 20, fontWeight: 'bold', marginRight: 8 }}>₱</Text>
-            <TextInput
-              style={{ flex: 1, fontSize: 18, fontWeight: '500', color: colors.text }}
-              placeholder="0.00"
-              placeholderTextColor={colors.textSecondary}
-              keyboardType="numeric"
-              value={amount}
-              onChangeText={setAmount}
-              onFocus={() => setAmountFocused(true)}
-              onBlur={() => setAmountFocused(false)}
-              selectionColor={colors.primary}
+          {/* Date Picker */}
+          <View style={{ marginBottom: 20 }}>
+            <DatePicker
+              value={selectedDate}
+              onChange={setSelectedDate}
+              label="Date"
             />
           </View>
-        </View>
 
-        {/* Enhanced Category Dropdown */}
-        <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16, marginTop: -30 }]}>
-          <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>
-            Category
-          </Text>
-          <TouchableOpacity 
-            style={{
+          <View style={{ marginBottom: 20 }}>
+            <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>Amount</Text>
+            <View style={{
               flexDirection: 'row',
               alignItems: 'center',
-              padding: 16,
               backgroundColor: colors.card,
-              borderColor: dropdownOpen ? colors.primary : colors.border,
+              borderColor: amountFocused ? colors.primary : colors.border,
               borderWidth: 1.5,
-              borderRadius: 12
-            }} 
-            onPress={() => setDropdownOpen((prev) => !prev)}
-          >
+              borderRadius: 12,
+              paddingHorizontal: 16,
+              paddingVertical: 4
+            }}>
+              <Text style={{ color: colors.primary, fontSize: 20, fontWeight: 'bold', marginRight: 8 }}>₱</Text>
+              <TextInput
+                style={{ flex: 1, fontSize: 18, fontWeight: '500', color: colors.text }}
+                placeholder="0.00"
+                placeholderTextColor={colors.textSecondary}
+                keyboardType="numeric"
+                value={amount}
+                onChangeText={setAmount}
+                onFocus={() => setAmountFocused(true)}
+                onBlur={() => setAmountFocused(false)}
+                selectionColor={colors.primary}
+              />
+            </View>
+          </View>
+
+          {/* Category Dropdown */}
+          <View style={{ marginBottom: 20 }}>
+            <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>Category</Text>
+            <TouchableOpacity 
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                padding: 16,
+                backgroundColor: colors.card,
+                borderColor: dropdownOpen ? colors.primary : colors.border,
+                borderWidth: 1.5,
+                borderRadius: 12
+              }} 
+              onPress={() => setDropdownOpen((prev) => !prev)}
+            >
             <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
               {category && (
                 <Text style={[commonStyles.unicodeIconLarge, { marginRight: 8, color: type === 'income' ? '#2ecc71' : '#e74c3c' }]}>
@@ -256,64 +232,62 @@ export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
               size={20} 
               color={colors.primary} 
             />
-          </TouchableOpacity>
-          {dropdownOpen && (
-            <View style={{ 
-              borderColor: colors.border,
-              borderWidth: 1,
-              borderRadius: 12,
-              marginTop: 4,
-              backgroundColor: colors.card
-            }}>
-              {categories[type].length > 0 ? (
-                categories[type].map((item) => (
-                  <TouchableOpacity
-                    key={item.name}
-                    style={{ 
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      padding: 16,
-                      borderBottomWidth: 1,
-                      borderBottomColor: colors.border
-                    }}
-                    onPress={() => {
-                      setCategory(item.name);
-                      setDropdownOpen(false);
-                    }}
-                  >
-                    <Text style={[commonStyles.unicodeIconLarge, { marginRight: 12, color: type === 'income' ? '#2ecc71' : '#e74c3c' }]}>
-                      {getUnicodeIcon(item.icon)}
-                    </Text>
-                    <Text style={{ fontSize: 16, color: colors.text }}>{item.name}</Text>
-                  </TouchableOpacity>
-                ))
-              ) : (
-                <Text style={{ padding: 16, color: colors.textSecondary, textAlign: 'center' }}>
-                  No categories found for {type}. Add categories in the Categories screen.
-                </Text>
-              )}
-            </View>
-          )}
-        </View>
+            </TouchableOpacity>
+            {dropdownOpen && (
+              <View style={{ 
+                borderColor: colors.border,
+                borderWidth: 1,
+                borderRadius: 12,
+                marginTop: 4,
+                backgroundColor: colors.card
+              }}>
+                {categories[type].length > 0 ? (
+                  categories[type].map((item) => (
+                    <TouchableOpacity
+                      key={item.name}
+                      style={{ 
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        padding: 16,
+                        borderBottomWidth: 1,
+                        borderBottomColor: colors.border
+                      }}
+                      onPress={() => {
+                        setCategory(item.name);
+                        setDropdownOpen(false);
+                      }}
+                    >
+                      <Text style={[commonStyles.unicodeIconLarge, { marginRight: 12, color: type === 'income' ? '#2ecc71' : '#e74c3c' }]}>
+                        {getUnicodeIcon(item.icon)}
+                      </Text>
+                      <Text style={{ fontSize: 16, color: colors.text }}>{item.name}</Text>
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <Text style={{ padding: 16, color: colors.textSecondary, textAlign: 'center' }}>
+                    No categories found for {type}. Add categories in the Categories screen.
+                  </Text>
+                )}
+              </View>
+            )}
+          </View>
 
-        {/* Enhanced Budget Dropdown (only for expenses) */}
-        {type === 'expense' && (
-          <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16, marginTop: -30 }]}>
-            <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>
-              Budget (optional)
-            </Text>
-            <TouchableOpacity 
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                padding: 16,
-                backgroundColor: colors.card,
-                borderColor: budgetDropdownOpen ? colors.primary : colors.border,
-                borderWidth: 1.5,
-                borderRadius: 12
-              }} 
-              onPress={() => setBudgetDropdownOpen((prev) => !prev)}
-            >
+          {/* Budget Dropdown (only for expenses) */}
+          {type === 'expense' && (
+            <View style={{ marginBottom: 20 }}>
+              <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>Budget (optional)</Text>
+              <TouchableOpacity 
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  padding: 16,
+                  backgroundColor: colors.card,
+                  borderColor: budgetDropdownOpen ? colors.primary : colors.border,
+                  borderWidth: 1.5,
+                  borderRadius: 12
+                }} 
+                onPress={() => setBudgetDropdownOpen((prev) => !prev)}
+              >
               <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
                 {budgetId && (
                   <Text style={[commonStyles.unicodeIconLarge, { marginRight: 8, color: colors.primary }]}>
@@ -389,27 +363,25 @@ export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
                 )}
               </View>
             )}
-          </View>
-        )}
+            </View>
+          )}
 
-        {/* Enhanced Goal Dropdown (only for income) */}
-        {type === 'income' && (
-          <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16, marginTop: -30 }]}>
-            <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>
-              Goal (optional)
-            </Text>
-            <TouchableOpacity 
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                padding: 16,
-                backgroundColor: colors.card,
-                borderColor: goalDropdownOpen ? colors.primary : colors.border,
-                borderWidth: 1.5,
-                borderRadius: 12
-              }} 
-              onPress={() => setGoalDropdownOpen((prev) => !prev)}
-            >
+          {/* Goal Dropdown (only for income) */}
+          {type === 'income' && (
+            <View style={{ marginBottom: 20 }}>
+              <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>Goal (optional)</Text>
+              <TouchableOpacity 
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  padding: 16,
+                  backgroundColor: colors.card,
+                  borderColor: goalDropdownOpen ? colors.primary : colors.border,
+                  borderWidth: 1.5,
+                  borderRadius: 12
+                }} 
+                onPress={() => setGoalDropdownOpen((prev) => !prev)}
+              >
               <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
                 {goalId && (
                   <Text style={[commonStyles.unicodeIconLarge, { marginRight: 8, color: '#2ecc71' }]}>
@@ -491,83 +463,62 @@ export const AddTransactionScreen: React.FC<any> = ({ navigation }) => {
           </View>
         )}
 
-        {/* Enhanced Note Input */}
-        <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16, marginTop: -30 }]}>
-          <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>
-            Note (optional)
-          </Text>
-          <TextInput
+          {/* Note Input */}
+          <View style={{ marginBottom: 24 }}>
+            <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>Note (optional)</Text>
+            <TextInput
+              style={{
+                backgroundColor: colors.card,
+                borderColor: noteFocused ? colors.primary : colors.border,
+                borderWidth: 1.5,
+                borderRadius: 12,
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                fontSize: 16,
+                color: colors.text
+              }}
+              placeholder="Add a note..."
+              placeholderTextColor={colors.textSecondary}
+              value={note}
+              onChangeText={setNote}
+              onFocus={() => setNoteFocused(true)}
+              onBlur={() => setNoteFocused(false)}
+              selectionColor={colors.primary}
+              multiline
+            />
+          </View>
+
+          {/* Save Button */}
+          <TouchableOpacity 
             style={{
-              backgroundColor: colors.card,
-              borderColor: colors.border,
-              borderWidth: 1.5,
-              borderRadius: 12,
-              paddingHorizontal: 16,
-              paddingVertical: 12,
-              fontSize: 16,
-              color: colors.text
-            }}
-            placeholder="Add a note..."
-            placeholderTextColor={colors.textSecondary}
-            value={note}
-            onChangeText={setNote}
-            onFocus={() => setNoteFocused(true)}
-            onBlur={() => setNoteFocused(false)}
-            selectionColor={colors.primary}
-            multiline
-          />
+              backgroundColor: isSaving ? colors.textSecondary : colors.primary, 
+              paddingVertical: 16, 
+              paddingHorizontal: 24, 
+              borderRadius: 12, 
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              elevation: 2,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 4
+            }} 
+            onPress={handleSave}
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <>
+                <MaterialCommunityIcons name="loading" size={20} color="#fff" style={{ marginRight: 8 }} />
+                <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>Saving...</Text>
+              </>
+            ) : (
+              <>
+                <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>Save</Text>
+              </>
+            )}
+          </TouchableOpacity>
         </View>
-
-        {/* Enhanced Manage Categories Button */}
-        <TouchableOpacity 
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 12,
-            marginBottom: 16,
-            borderWidth: 1,
-            borderColor: '#4a90e2',
-            borderRadius: 8,
-            backgroundColor: 'rgba(74, 144, 226, 0.05)'
-          }} 
-          onPress={() => navigation.navigate('Categories')}
-        >
-          <MaterialCommunityIcons name="cog" size={18} color="#4a90e2" style={{ marginRight: 8 }} />
-          <Text style={{ color: '#4a90e2', fontSize: 14, fontWeight: '600' }}>Manage Categories</Text>
-        </TouchableOpacity>
-
-        {/* Enhanced Save Button */}
-        <TouchableOpacity 
-          style={{
-            backgroundColor: isSaving ? '#95a5a6' : '#4a90e2', 
-            paddingVertical: 16, 
-            paddingHorizontal: 24, 
-            borderRadius: 12, 
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            elevation: 2,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4
-          }} 
-          onPress={handleSave}
-          disabled={isSaving}
-        >
-          {isSaving ? (
-            <>
-              <MaterialCommunityIcons name="loading" size={20} color="#fff" style={{ marginRight: 8 }} />
-              <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>Saving...</Text>
-            </>
-          ) : (
-            <>
-              <MaterialCommunityIcons name="plus-circle" size={20} color="#fff" style={{ marginRight: 8 }} />
-              <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>Add Transaction</Text>
-            </>
-          )}
-        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );

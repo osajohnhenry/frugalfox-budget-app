@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Switch, Alert } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Switch, Alert, Animated } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -14,6 +14,10 @@ export const AppearanceScreen: React.FC<Props> = ({ navigation }) => {
   const [autoBackup, setAutoBackup] = useState(false);
   const [compactView, setCompactView] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
+  
+  // Animation values
+  const slideAnimation = useRef(new Animated.Value(300)).current;
+  const overlayAnimation = useRef(new Animated.Value(0)).current;
 
   const predefinedColors = [
     '#4a90e2', // Default blue
@@ -30,8 +34,50 @@ export const AppearanceScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleColorSelect = (color: string) => {
     setThemeColor(color);
-    setShowColorPicker(false);
+    hideColorPicker();
   };
+
+  const showColorPickerWithAnimation = () => {
+    setShowColorPicker(true);
+    // Start animations after a small delay to ensure modal is rendered
+    setTimeout(() => {
+      Animated.parallel([
+        Animated.timing(slideAnimation, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(overlayAnimation, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, 50);
+  };
+
+  const hideColorPicker = () => {
+    Animated.parallel([
+      Animated.timing(slideAnimation, {
+        toValue: 300,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(overlayAnimation, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setShowColorPicker(false);
+    });
+  };
+
+  useEffect(() => {
+    if (showColorPicker) {
+      showColorPickerWithAnimation();
+    }
+  }, [showColorPicker]);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -44,156 +90,70 @@ export const AppearanceScreen: React.FC<Props> = ({ navigation }) => {
   }, [navigation, colors]);
 
   return (
-    <ScrollView style={[appearanceStyles.container, { backgroundColor: colors.background }]}>
-      <View style={appearanceStyles.header}>
-        <Text style={[appearanceStyles.title, { color: colors.text }]}>
-          Appearance
-        </Text>
-        <Text style={[appearanceStyles.subtitle, { color: colors.textSecondary }]}>
-          Customize how the app looks and feels
-        </Text>
-      </View>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <ScrollView style={[appearanceStyles.container, { backgroundColor: colors.background }]}>
+        <View style={appearanceStyles.header}>
+          <Text style={[appearanceStyles.title, { color: colors.text }]}>
+            Appearance
+          </Text>
+          <Text style={[appearanceStyles.subtitle, { color: colors.textSecondary }]}>
+            Customize how the app looks and feels
+          </Text>
+        </View>
 
-      {/* Theme Settings */}
-      <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16 }]}>
-        <Text style={[appearanceStyles.sectionTitle, { color: colors.text }]}>
-          Theme
-        </Text>
+        {/* Theme Settings */}
+        <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16 }]}>
+          <Text style={[appearanceStyles.sectionTitle, { color: colors.text }]}>
+            Theme
+          </Text>
         
-        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }}>
-          <View style={appearanceStyles.settingLeft}>
-            <MaterialCommunityIcons name="theme-light-dark" size={20} color={colors.primary} style={appearanceStyles.settingIcon} />
-            <Text style={[appearanceStyles.settingText, { color: colors.text }]}>Dark Mode</Text>
-          </View>
-          <Switch
-            value={isDarkMode}
-            onValueChange={toggleDarkMode}
-            trackColor={{ false: colors.border, true: colors.primary }}
-            thumbColor={isDarkMode ? '#fff' : '#fff'}
-          />
-        </TouchableOpacity>
+          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }}>
+            <View style={appearanceStyles.settingLeft}>
+              <MaterialCommunityIcons name="theme-light-dark" size={20} color={colors.primary} style={appearanceStyles.settingIcon} />
+              <Text style={[appearanceStyles.settingText, { color: colors.text }]}>Dark Mode</Text>
+            </View>
+            <Switch
+              value={isDarkMode}
+              onValueChange={toggleDarkMode}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor={isDarkMode ? '#fff' : '#fff'}
+            />
+          </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={[appearanceStyles.settingRow, { elevation: 0, shadowOpacity: 0 }]}
-          onPress={() => setShowColorPicker(true)}
-          activeOpacity={0.7}
-        >
-          <View style={appearanceStyles.settingLeft}>
-            <MaterialCommunityIcons name="palette" size={20} color={colors.primary} style={appearanceStyles.settingIcon} />
-            <Text style={[appearanceStyles.settingText, { color: colors.text }]}>Theme Color</Text>
-          </View>
-          <View style={appearanceStyles.settingRight}>
-            <View style={[appearanceStyles.colorPreview, { backgroundColor: themeColor }]} />
-            <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textSecondary} style={appearanceStyles.chevronIcon} />
-          </View>
-        </TouchableOpacity>
-      </View>
-
-      {/* Display Settings */}
-      <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16 }]}>
-        <Text style={[appearanceStyles.sectionTitle, { color: colors.text }]}>
-          Display
-        </Text>
-        
-        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }}>
-          <View style={appearanceStyles.settingLeft}>
-            <MaterialCommunityIcons name="view-compact" size={20} color={colors.primary} style={appearanceStyles.settingIcon} />
-            <Text style={[appearanceStyles.settingText, { color: colors.text }]}>Compact View</Text>
-          </View>
-          <Switch
-            value={compactView}
-            onValueChange={setCompactView}
-            trackColor={{ false: colors.border, true: colors.primary }}
-            thumbColor={compactView ? '#fff' : '#fff'}
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }}>
-          <View style={appearanceStyles.settingLeft}>
-            <MaterialCommunityIcons name="format-text" size={20} color={colors.primary} style={appearanceStyles.settingIcon} />
-            <Text style={[appearanceStyles.settingText, { color: colors.text }]}>Font Size</Text>
-          </View>
-          <View style={appearanceStyles.settingRight}>
-            <Text style={[appearanceStyles.subtitle, { color: colors.textSecondary, marginRight: 8 }]}>Medium</Text>
-            <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textSecondary} style={appearanceStyles.chevronIcon} />
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }}>
-          <View style={appearanceStyles.settingLeft}>
-            <MaterialCommunityIcons name="currency-usd" size={20} color={colors.primary} style={appearanceStyles.settingIcon} />
-            <Text style={[appearanceStyles.settingText, { color: colors.text }]}>Currency Symbol</Text>
-          </View>
-          <View style={appearanceStyles.settingRight}>
-            <Text style={[appearanceStyles.subtitle, { color: colors.textSecondary, marginRight: 8 }]}>₱</Text>
-            <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textSecondary} style={appearanceStyles.chevronIcon} />
-          </View>
-        </TouchableOpacity>
-      </View>
-
-      {/* Behavior Settings */}
-      <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16 }]}>
-        <Text style={[appearanceStyles.sectionTitle, { color: colors.text }]}>
-          Behavior
-        </Text>
-        
-        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }}>
-          <View style={appearanceStyles.settingLeft}>
-            <MaterialCommunityIcons name="bell" size={20} color={colors.primary} style={appearanceStyles.settingIcon} />
-            <Text style={[appearanceStyles.settingText, { color: colors.text }]}>Push Notifications</Text>
-          </View>
-          <Switch
-            value={notifications}
-            onValueChange={setNotifications}
-            trackColor={{ false: colors.border, true: colors.primary }}
-            thumbColor={notifications ? '#fff' : '#fff'}
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }}>
-          <View style={appearanceStyles.settingLeft}>
-            <MaterialCommunityIcons name="cloud-upload" size={20} color={colors.primary} style={appearanceStyles.settingIcon} />
-            <Text style={[appearanceStyles.settingText, { color: colors.text }]}>Auto Backup</Text>
-          </View>
-          <Switch
-            value={autoBackup}
-            onValueChange={setAutoBackup}
-            trackColor={{ false: colors.border, true: colors.primary }}
-            thumbColor={autoBackup ? '#fff' : '#fff'}
-          />
-        </TouchableOpacity>
-      </View>
-
-      {/* Reset Section */}
-      <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16 }]}>
-        <Text style={[appearanceStyles.sectionTitle, { color: '#e74c3c' }]}>
-          Reset
-        </Text>
-        
-        <TouchableOpacity 
-          style={appearanceStyles.settingRow}
-          onPress={() => Alert.alert('Reset Appearance', 'Are you sure you want to reset all appearance settings to default?', [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Reset', style: 'destructive', onPress: () => {
-              // Reset other settings but keep dark mode as is
-              setNotifications(true);
-              setAutoBackup(false);
-              setCompactView(false);
-              setThemeColor('#4a90e2'); // Reset to default theme color
-              Alert.alert('Reset Complete', 'All appearance settings have been reset to default.');
-            }}
-          ])}
-        >
-          <MaterialCommunityIcons name="restore" size={20} color="#e74c3c" style={appearanceStyles.settingIcon} />
-          <Text style={[appearanceStyles.settingText, { color: '#e74c3c', flex: 1 }]}>Reset to Default</Text>
-          <MaterialCommunityIcons name="chevron-right" size={20} color="#e74c3c" style={appearanceStyles.chevronIcon} />
-        </TouchableOpacity>
-      </View>
-
-      {/* Color Picker Modal */}
+          <TouchableOpacity 
+            style={[appearanceStyles.settingRow, { elevation: 0, shadowOpacity: 0 }]}
+            onPress={showColorPickerWithAnimation}
+            activeOpacity={0.7}
+          >
+            <View style={appearanceStyles.settingLeft}>
+              <MaterialCommunityIcons name="palette" size={20} color={colors.primary} style={appearanceStyles.settingIcon} />
+              <Text style={[appearanceStyles.settingText, { color: colors.text }]}>Theme Color</Text>
+            </View>
+            <View style={appearanceStyles.settingRight}>
+              <View style={[appearanceStyles.colorPreview, { backgroundColor: themeColor }]} />
+              <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textSecondary} style={appearanceStyles.chevronIcon} />
+            </View>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+      
+      {/* Color Picker Modal - Outside ScrollView */}
       {showColorPicker && (
-        <View style={appearanceStyles.modalOverlay}>
-          <View style={[appearanceStyles.modalContent, { backgroundColor: colors.card }]}>
+        <Animated.View 
+          style={[
+            appearanceStyles.modalOverlay, 
+            { opacity: overlayAnimation }
+          ]}
+        >
+          <Animated.View 
+            style={[
+              appearanceStyles.modalContent, 
+              { 
+                backgroundColor: colors.card,
+                transform: [{ translateY: slideAnimation }]
+              }
+            ]}
+          >
             <Text style={[
               appearanceStyles.modalTitle,
               { color: colors.text }
@@ -223,7 +183,7 @@ export const AppearanceScreen: React.FC<Props> = ({ navigation }) => {
                 appearanceStyles.cancelButton,
                 { backgroundColor: colors.border }
               ]}
-              onPress={() => setShowColorPicker(false)}
+              onPress={hideColorPicker}
             >
               <Text style={[
                 appearanceStyles.cancelButtonText,
@@ -232,9 +192,9 @@ export const AppearanceScreen: React.FC<Props> = ({ navigation }) => {
                 Cancel
               </Text>
             </TouchableOpacity>
-          </View>
-        </View>
+          </Animated.View>
+        </Animated.View>
       )}
-    </ScrollView>
+    </View>
   );
 };

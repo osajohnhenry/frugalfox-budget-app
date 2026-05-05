@@ -5,6 +5,7 @@ import { useTransactions } from '../context/TransactionContext';
 import { useTheme } from '../context/ThemeContext';
 import { commonStyles, goalListStyles } from '../styles/screenStyles';
 import { getUnicodeIcon } from '../utils/icons';
+import { budgetGoalStyles as budgetGoalStyles } from '../styles/screenStyles';
 
 export const GoalListScreen: React.FC<any> = ({ navigation }) => {
   const { colors } = useTheme();
@@ -155,14 +156,24 @@ export const GoalListScreen: React.FC<any> = ({ navigation }) => {
               borderTopColor: colors.border,
             }
           ]}>
-            <Text style={[
-              commonStyles.textSmall,
-              commonStyles.semiBold,
-              { color: colors.text, marginBottom: 8 }
-            ]}>
-              Recent Income
-            </Text>
-            {goalTransactions.slice(0, 3).map((transaction) => (
+            <View style={commonStyles.rowBetween}>
+              <Text style={[
+                commonStyles.textSmall,
+                commonStyles.semiBold,
+                { color: colors.text }
+              ]}>
+                Recent Income
+              </Text>
+              <TouchableOpacity 
+                onPress={() => navigation.navigate('GoalTransactions', { goalId: goal.id, goalName: goal.name })}
+                style={{ padding: 4 }}
+              >
+                <Text style={[{ color: colors.primary, fontSize: 12, fontWeight: '500' }]}>
+                  View All
+                </Text>
+              </TouchableOpacity>
+            </View>
+            {goalTransactions.slice(0, 1).map((transaction) => (
               <View key={transaction.id} style={goalListStyles.recentTransactionItem}>
                 <MaterialCommunityIcons name="trending-up" size={16} color="#2ecc71" style={goalListStyles.transactionIcon} />
                 <Text style={[
@@ -180,14 +191,6 @@ export const GoalListScreen: React.FC<any> = ({ navigation }) => {
                 </Text>
               </View>
             ))}
-            {goalTransactions.length > 3 && (
-              <Text style={[
-                goalListStyles.moreText,
-                { color: colors.textSecondary }
-              ]}>
-                +{goalTransactions.length - 3} more...
-              </Text>
-            )}
           </View>
         )}
       </View>
@@ -204,11 +207,11 @@ export const GoalListScreen: React.FC<any> = ({ navigation }) => {
     >
       {/* Header */}
       <View style={goalListStyles.header}>
-        <Text style={[commonStyles.textLarge, commonStyles.semiBold, { color: colors.text }]}>
+        <Text style={[budgetGoalStyles.title, { color: colors.text }]}>
           Your Goals
         </Text>
         <Text style={[commonStyles.textMedium, { color: colors.textSecondary }]}>
-          Track your savings goals
+          Track your savings goals and progress
         </Text>
       </View>
 

@@ -5,7 +5,8 @@ import { useTransactions } from '../context/TransactionContext';
 import { useTheme } from '../context/ThemeContext';
 import { Budget, Transaction } from '../types';
 import { getUnicodeIcon } from '../utils/icons';
-import { commonStyles, budgetScreenStyles } from '../styles/screenStyles';
+import { commonStyles, budgetScreenStyles, budgetScreenStyles as budgetScreenStyles2 } from '../styles/screenStyles';
+import { budgetGoalStyles as budgetGoalStyles } from '../styles/screenStyles';
 
 export const BudgetScreen: React.FC<any> = ({ navigation }) => {
   const { colors } = useTheme();
@@ -51,7 +52,7 @@ export const BudgetScreen: React.FC<any> = ({ navigation }) => {
     const remaining = budget.amount - spending;
     const percentage = budget.amount > 0 ? (spending / budget.amount) * 100 : 0;
     const isOverBudget = remaining < 0;
-    const recentTransactions = getBudgetTransactions(budget.id, 3);
+    const recentTransactions = getBudgetTransactions(budget.id, 1);
 
     return (
       <View key={budget.id} style={[commonStyles.card, { backgroundColor: colors.card }]}>
@@ -65,7 +66,7 @@ export const BudgetScreen: React.FC<any> = ({ navigation }) => {
               </Text>
             </View>
           </View>
-          <View style={commonStyles.column}>
+          <View style={commonStyles.rowCenter}>
             <TouchableOpacity onPress={() => navigation.navigate('EditBudget', { budget })} style={budgetScreenStyles.actionButton}>
               <MaterialCommunityIcons name="pencil" size={18} color={colors.primary} />
             </TouchableOpacity>
@@ -109,9 +110,19 @@ export const BudgetScreen: React.FC<any> = ({ navigation }) => {
         {/* Recent Transactions Section */}
         {recentTransactions.length > 0 && (
           <View style={budgetScreenStyles.recentTransactions}>
-            <Text style={[budgetScreenStyles.spendingLabel, { color: colors.textSecondary, marginBottom: 8 }]}>
-              Recent Transactions
-            </Text>
+            <View style={commonStyles.rowBetween}>
+              <Text style={[budgetScreenStyles.spendingLabel, { color: colors.textSecondary }]}>
+                Recent Transactions
+              </Text>
+              <TouchableOpacity 
+                onPress={() => navigation.navigate('BudgetTransactions', { budgetId: budget.id, budgetName: budget.name })}
+                style={{ padding: 4 }}
+              >
+                <Text style={[{ color: colors.primary, fontSize: 12, fontWeight: '500' }]}>
+                  View All
+                </Text>
+              </TouchableOpacity>
+            </View>
             {recentTransactions.map((transaction: Transaction) => (
               <View key={transaction.id} style={budgetScreenStyles.recentTransactionItem}>
                 <Text style={[commonStyles.unicodeIconSmall, { color: colors.textSecondary }]}>
@@ -138,6 +149,15 @@ export const BudgetScreen: React.FC<any> = ({ navigation }) => {
 
   return (
     <View style={[budgetScreenStyles.container, { backgroundColor: colors.background }]}>
+      {/* Header */}
+      <View style={{ padding: 20, paddingBottom: 10 }}>
+        <Text style={[budgetGoalStyles.title, { color: colors.text }]}>
+          Your Budgets
+        </Text>
+        <Text style={[commonStyles.textMedium, { color: colors.textSecondary }]}>
+          Track your spendings and current available budget
+        </Text>
+      </View>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         {budgets.length === 0 ? (
           <View style={budgetScreenStyles.emptyState}>

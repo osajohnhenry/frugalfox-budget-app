@@ -76,12 +76,15 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
         </TouchableOpacity>
 
         <TouchableOpacity style={settingsScreenStyles.settingRow}>
-          <MaterialCommunityIcons name="currency-usd" size={20} color={colors.primary} style={settingsScreenStyles.settingIcon} />
+          <MaterialCommunityIcons name="currency-sign" size={20} color={colors.primary} style={settingsScreenStyles.settingIcon} />
           <Text style={[settingsScreenStyles.settingText, { color: colors.text }]}>Currency</Text>
           <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textSecondary} style={settingsScreenStyles.chevronIcon} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={settingsScreenStyles.settingRow}>
+        <TouchableOpacity 
+          style={settingsScreenStyles.settingRow}
+          onPress={() => navigation.navigate('BackupRestore')}
+        >
           <MaterialCommunityIcons name="backup-restore" size={20} color={colors.primary} style={settingsScreenStyles.settingIcon} />
           <Text style={[settingsScreenStyles.settingText, { color: colors.text }]}>Backup & Restore</Text>
           <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textSecondary} style={settingsScreenStyles.chevronIcon} />

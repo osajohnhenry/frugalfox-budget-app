@@ -1,13 +1,13 @@
 import React, { useState, useLayoutEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert, TextInput, Animated, KeyboardAvoidingView, Platform } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTransactions } from '../context/TransactionContext';
 import { useTheme } from '../context/ThemeContext';
 import { Transaction } from '../types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { addTransactionStyles as styles, commonStyles } from '../styles/screenStyles';
 import { getUnicodeIcon } from '../utils/icons';
+import { DatePicker } from '../components/DatePicker';
 
 
 type Props = NativeStackScreenProps<any, 'EditTransaction'>;
@@ -23,7 +23,6 @@ export const EditTransactionScreen: React.FC<Props> = ({ route, navigation }) =>
   const [budgetId, setBudgetId] = useState(transaction.budgetId || '');
   const [goalId, setGoalId] = useState(transaction.goalId || '');
   const [date, setDate] = useState(new Date(transaction.date));
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [budgetDropdownOpen, setBudgetDropdownOpen] = useState(false);
   const [goalDropdownOpen, setGoalDropdownOpen] = useState(false);
@@ -50,16 +49,6 @@ export const EditTransactionScreen: React.FC<Props> = ({ route, navigation }) =>
     });
   }, [navigation, colors]);
 
-  const onDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(false);
-    if (selectedDate) {
-      setDate(selectedDate);
-    }
-  };
-
-  const onDatePickerDismiss = () => {
-    setShowDatePicker(false);
-  };
 
   const handleSave = async () => {
     const parsedAmount = parseFloat(amount);
@@ -198,33 +187,12 @@ export const EditTransactionScreen: React.FC<Props> = ({ route, navigation }) =>
 
         {/* Date Picker */}
         <View style={{ marginTop: 0 }}>
-          <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 4 }]}>
-            Date
-          </Text>
-          <TouchableOpacity 
-            style={[styles.datePicker, { 
-              backgroundColor: colors.card,
-              borderColor: colors.border,
-              borderWidth: 1.5
-            }]} 
-            onPress={() => setShowDatePicker(true)}
-          >
-            <MaterialCommunityIcons name="calendar" size={20} color={colors.primary} style={styles.dateIcon} />
-            <Text style={[styles.dateText, { color: colors.text, fontWeight: '500' }]}>
-              {date.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
-            </Text>
-          </TouchableOpacity>
-        </View>
-        {showDatePicker && (
-          <DateTimePicker
+          <DatePicker
             value={date}
-            mode="date"
-            display="default"
-            onValueChange={onDateChange}
-            onDismiss={onDatePickerDismiss}
-            maximumDate={new Date()}
+            onChange={setDate}
+            label="Date"
           />
-        )}
+        </View>
 
         {/* Amount Input */}
         <View style={{ marginTop: 0 }}>

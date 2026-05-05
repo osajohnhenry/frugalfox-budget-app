@@ -103,94 +103,97 @@ export const AddBudgetScreen: React.FC<any> = ({ navigation }) => {
         keyboardShouldPersistTaps="handled"
         style={{ backgroundColor: colors.background }}
       >
-        {/* Budget Name Input */}
-        <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16 }]}>
-          <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>
-            Budget Name
-          </Text>
-          <TextInput
-            style={[
-              budgetGoalStyles.inputField,
-              {
-                backgroundColor: colors.card,
-                borderColor: nameFocused ? colors.primary : colors.border,
-                color: colors.text
-              }
-            ]}
-            placeholder="Enter budget name"
-            placeholderTextColor={colors.textSecondary}
-            value={name}
-            onChangeText={setName}
-            onFocus={() => setNameFocused(true)}
-            onBlur={() => setNameFocused(false)}
-            selectionColor={colors.primary}
-          />
-        </View>
-
-        {/* Budget Amount Input */}
-        <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16, marginTop: -30 }]}>
-          <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>
-            Budget Amount
-          </Text>
-          <View style={[
-            budgetGoalStyles.amountContainer,
-            {
-              backgroundColor: colors.card,
-              borderColor: amountFocused ? colors.primary : colors.border,
-            }
-          ]}>
-            <Text style={[budgetGoalStyles.currencySymbol, { color: colors.primary }]}>₱</Text>
+        {/* Single Card Container */}
+        <View style={[commonStyles.card, { backgroundColor: colors.card, padding: 20 }]}>
+          {/* Budget Name Input */}
+          <View style={{ marginBottom: 20 }}>
+            <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>
+              Budget Name
+            </Text>
             <TextInput
-              style={[budgetGoalStyles.amountInput, { color: colors.text }]}
-              placeholder="0.00"
+              style={[
+                budgetGoalStyles.inputField,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: nameFocused ? colors.primary : colors.border,
+                  color: colors.text
+                }
+              ]}
+              placeholder="Enter budget name"
               placeholderTextColor={colors.textSecondary}
-              keyboardType="numeric"
-              value={amount}
-              onChangeText={setAmount}
-              onFocus={() => setAmountFocused(true)}
-              onBlur={() => setAmountFocused(false)}
+              value={name}
+              onChangeText={setName}
+              onFocus={() => setNameFocused(true)}
+              onBlur={() => setNameFocused(false)}
               selectionColor={colors.primary}
             />
           </View>
-        </View>
 
-        {/* Icon Selection */}
-        <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16, marginTop: -30 }]}>
-          <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 16 }]}>
-            Select Icon
-          </Text>
-          <View style={budgetGoalStyles.selectedIconContainer}>
-            <Text style={budgetGoalStyles.selectedIconText}>{getUnicodeIcon(selectedIcon)}</Text>
-            <Text style={[budgetGoalStyles.selectedIconLabel, { color: colors.text }]}>
-              {selectedIcon.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+          {/* Budget Amount Input */}
+          <View style={{ marginBottom: 20 }}>
+            <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>
+              Budget Amount
             </Text>
+            <View style={[
+              budgetGoalStyles.amountContainer,
+              {
+                backgroundColor: colors.card,
+                borderColor: amountFocused ? colors.primary : colors.border,
+              }
+            ]}>
+              <Text style={[budgetGoalStyles.currencySymbol, { color: colors.primary }]}>₱</Text>
+              <TextInput
+                style={[budgetGoalStyles.amountInput, { color: colors.text }]}
+                placeholder="0.00"
+                placeholderTextColor={colors.textSecondary}
+                keyboardType="numeric"
+                value={amount}
+                onChangeText={setAmount}
+                onFocus={() => setAmountFocused(true)}
+                onBlur={() => setAmountFocused(false)}
+                selectionColor={colors.primary}
+              />
+            </View>
           </View>
-          {renderIconGrid()}
-        </View>
 
-        {/* Save Button */}
-        <TouchableOpacity 
-          style={[
-            budgetGoalStyles.saveButton,
-            {
-              backgroundColor: isSaving ? '#95a5a6' : colors.primary,
-            }
-          ]} 
-          onPress={handleSave}
-          disabled={isSaving}
-        >
-          {isSaving ? (
-            <>
-              <MaterialCommunityIcons name="loading" size={20} color="#fff" style={budgetGoalStyles.saveButtonText} />
-              <Text style={budgetGoalStyles.saveButtonText}>Creating...</Text>
-            </>
-          ) : (
-            <>
-              <MaterialCommunityIcons name="plus-circle" size={20} color="#fff" style={budgetGoalStyles.saveButtonText} />
-              <Text style={budgetGoalStyles.saveButtonText}>Create Budget</Text>
-            </>
-          )}
-        </TouchableOpacity>
+          {/* Icon Selection */}
+          <View style={{ marginBottom: 24 }}>
+            <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 16 }]}>
+              Select Icon
+            </Text>
+            <View style={budgetGoalStyles.selectedIconContainer}>
+              <Text style={budgetGoalStyles.selectedIconText}>{getUnicodeIcon(selectedIcon)}</Text>
+              <Text style={[budgetGoalStyles.selectedIconLabel, { color: colors.text }]}>
+                {selectedIcon.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+              </Text>
+            </View>
+            {renderIconGrid()}
+          </View>
+
+          {/* Save Button */}
+          <TouchableOpacity 
+            style={[
+              budgetGoalStyles.saveButton,
+              {
+                backgroundColor: isSaving ? colors.textSecondary : colors.primary,
+              }
+            ]} 
+            onPress={handleSave}
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <>
+                <MaterialCommunityIcons name="loading" size={20} color="#fff" style={budgetGoalStyles.saveButtonText} />
+                <Text style={budgetGoalStyles.saveButtonText}>Creating...</Text>
+              </>
+            ) : (
+              <>
+                <MaterialCommunityIcons name="plus-circle" size={20} color="#fff" style={budgetGoalStyles.saveButtonText} />
+                <Text style={budgetGoalStyles.saveButtonText}>Create Budget</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

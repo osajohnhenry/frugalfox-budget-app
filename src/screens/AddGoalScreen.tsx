@@ -104,74 +104,75 @@ export const AddGoalScreen: React.FC<any> = ({ navigation }) => {
         keyboardShouldPersistTaps="handled"
         style={{ backgroundColor: colors.background }}
       >
-        {/* Goal Name Input */}
-        <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16 }]}>
-          <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>
-            Goal Name
-          </Text>
-          <TextInput
-            style={[
-              budgetGoalStyles.inputField,
-              {
-                backgroundColor: colors.card,
-                borderColor: nameFocused ? colors.primary : colors.border,
-                color: colors.text
-              }
-            ]}
-            placeholder="Enter goal name"
-            placeholderTextColor={colors.textSecondary}
-            value={name}
-            onChangeText={setName}
-            onFocus={() => setNameFocused(true)}
-            onBlur={() => setNameFocused(false)}
-            selectionColor={colors.primary}
-          />
-        </View>
-
-        {/* Target Amount Input */}
-        <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16, marginTop: -30 }]}>
-          <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>
-            Target Amount
-          </Text>
-          <View style={[
-            budgetGoalStyles.amountContainer,
-            {
-              backgroundColor: colors.card,
-              borderColor: amountFocused ? colors.primary : colors.border,
-            }
-          ]}>
-            <Text style={[budgetGoalStyles.currencySymbol, { color: colors.primary }]}>₱</Text>
+        {/* Single Card Container */}
+        <View style={[commonStyles.card, { backgroundColor: colors.card, padding: 20 }]}>
+          {/* Goal Name Input */}
+          <View style={{ marginBottom: 20 }}>
+            <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>
+              Goal Name
+            </Text>
             <TextInput
-              style={[budgetGoalStyles.amountInput, { color: colors.text }]}
-              placeholder="0.00"
+              style={[
+                budgetGoalStyles.inputField,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: nameFocused ? colors.primary : colors.border,
+                  color: colors.text
+                }
+              ]}
+              placeholder="Enter goal name"
               placeholderTextColor={colors.textSecondary}
-              keyboardType="numeric"
-              value={targetAmount}
-              onChangeText={setTargetAmount}
-              onFocus={() => setAmountFocused(true)}
-              onBlur={() => setAmountFocused(false)}
+              value={name}
+              onChangeText={setName}
+              onFocus={() => setNameFocused(true)}
+              onBlur={() => setNameFocused(false)}
               selectionColor={colors.primary}
             />
           </View>
-        </View>
 
-        {/* Icon Selection */}
-        <View style={[commonStyles.card, { backgroundColor: colors.card, marginBottom: 16, marginTop: -30 }]}>
-          <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 16 }]}>
-            Select Icon
-          </Text>
-          <View style={budgetGoalStyles.selectedIconContainer}>
-            <Text style={budgetGoalStyles.selectedIconText}>{getUnicodeIcon(selectedIcon)}</Text>
-            <Text style={[budgetGoalStyles.selectedIconLabel, { color: colors.text }]}>
-              {selectedIcon.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+          {/* Target Amount Input */}
+          <View style={{ marginBottom: 20 }}>
+            <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 6 }]}>
+              Target Amount
             </Text>
+            <View style={[
+              budgetGoalStyles.amountContainer,
+              {
+                backgroundColor: colors.card,
+                borderColor: amountFocused ? colors.primary : colors.border,
+              }
+            ]}>
+              <Text style={[budgetGoalStyles.currencySymbol, { color: colors.primary }]}>₱</Text>
+              <TextInput
+                style={[budgetGoalStyles.amountInput, { color: colors.text }]}
+                placeholder="0.00"
+                placeholderTextColor={colors.textSecondary}
+                keyboardType="numeric"
+                value={targetAmount}
+                onChangeText={setTargetAmount}
+                onFocus={() => setAmountFocused(true)}
+                onBlur={() => setAmountFocused(false)}
+                selectionColor={colors.primary}
+              />
+            </View>
           </View>
-          {renderIconGrid()}
-        </View>
 
-        {/* Info Card */}
-        <View style={[commonStyles.card, budgetGoalStyles.infoCard, { backgroundColor: 'rgba(46, 204, 113, 0.1)', marginTop: -30 }]}>
-          <View style={budgetGoalStyles.infoCard}>
+          {/* Icon Selection */}
+          <View style={{ marginBottom: 20 }}>
+            <Text style={[commonStyles.textMedium, commonStyles.semiBold, { color: colors.text, marginBottom: 16 }]}>
+              Select Icon
+            </Text>
+            <View style={budgetGoalStyles.selectedIconContainer}>
+              <Text style={budgetGoalStyles.selectedIconText}>{getUnicodeIcon(selectedIcon)}</Text>
+              <Text style={[budgetGoalStyles.selectedIconLabel, { color: colors.text }]}>
+                {selectedIcon.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+              </Text>
+            </View>
+            {renderIconGrid()}
+          </View>
+
+          {/* Info Card */}
+          <View style={[budgetGoalStyles.infoCard, { backgroundColor: 'rgba(46, 204, 113, 0.1)', marginBottom: 24 }]}>
             <MaterialCommunityIcons name="information" size={20} color="#2ecc71" style={budgetGoalStyles.infoIcon} />
             <View style={{ flex: 1 }}>
               <Text style={[budgetGoalStyles.infoTitle, { color: '#2ecc71' }]}>
@@ -182,31 +183,31 @@ export const AddGoalScreen: React.FC<any> = ({ navigation }) => {
               </Text>
             </View>
           </View>
-        </View>
 
-        {/* Save Button */}
-        <TouchableOpacity 
-          style={[
-            budgetGoalStyles.saveButton,
-            {
-              backgroundColor: isSaving ? '#95a5a6' : colors.primary,
-            }
-          ]} 
-          onPress={handleSave}
-          disabled={isSaving}
-        >
-          {isSaving ? (
-            <>
-              <MaterialCommunityIcons name="loading" size={20} color="#fff" style={budgetGoalStyles.saveButtonText} />
-              <Text style={budgetGoalStyles.saveButtonText}>Creating...</Text>
-            </>
-          ) : (
-            <>
-              <MaterialCommunityIcons name="plus-circle" size={20} color="#fff" style={budgetGoalStyles.saveButtonText} />
-              <Text style={budgetGoalStyles.saveButtonText}>Create Goal</Text>
-            </>
-          )}
-        </TouchableOpacity>
+          {/* Save Button */}
+          <TouchableOpacity 
+            style={[
+              budgetGoalStyles.saveButton,
+              {
+                backgroundColor: isSaving ? colors.textSecondary : colors.primary,
+              }
+            ]} 
+            onPress={handleSave}
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <>
+                <MaterialCommunityIcons name="loading" size={20} color="#fff" style={budgetGoalStyles.saveButtonText} />
+                <Text style={budgetGoalStyles.saveButtonText}>Creating...</Text>
+              </>
+            ) : (
+              <>
+                <MaterialCommunityIcons name="plus-circle" size={20} color="#fff" style={budgetGoalStyles.saveButtonText} />
+                <Text style={budgetGoalStyles.saveButtonText}>Create Goal</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

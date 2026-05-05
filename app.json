@@ -7,6 +7,9 @@
     "icon": "./assets/frugalfox.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "font": {
+      "family": "Poppins"
+    },
     "ios": {
       "supportsTablet": true
     },
