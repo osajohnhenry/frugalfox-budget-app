@@ -61,8 +61,10 @@ export const HomeScreen: React.FC<any> = ({ navigation }) => {
   // Create data for FlatList
   const listData = [];
   
-  // Add header data
-  listData.push({ type: 'header', balance, expenseTotal, incomeTotal });
+  // Add header data only if there are transactions
+  if (!hasNoTransactions) {
+    listData.push({ type: 'header', balance, expenseTotal, incomeTotal });
+  }
   
   // Add expenses section header
   if (expenseTransactions.length > 0) {
@@ -146,7 +148,7 @@ export const HomeScreen: React.FC<any> = ({ navigation }) => {
     if (hasNoTransactions) {
       return (
         <View style={homeStyles.list} key="empty-list">
-          <Text style={[homeStyles.emptyText, { color: colors.textSecondary }]}>No transactions yet. Tap + to add one!</Text>
+          <Text style={[homeStyles.emptyText, { color: colors.textSecondary, marginTop: 0 }]}>No transactions yet. Tap + to add one!</Text>
         </View>
       );
     }
@@ -160,7 +162,11 @@ export const HomeScreen: React.FC<any> = ({ navigation }) => {
         data={listData}
         renderItem={renderListItem}
         ListHeaderComponent={listHeader}
-        contentContainerStyle={{ paddingBottom: 80 }}
+        contentContainerStyle={{ 
+          paddingBottom: 80,
+          flexGrow: 1,
+          justifyContent: hasNoTransactions ? 'center' : 'flex-start'
+        }}
         keyExtractor={(item, index) => `${item.type}-${index}`}
         showsVerticalScrollIndicator={false}
       />

@@ -1,15 +1,47 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { settingsStyles as styles, commonStyles, settingsScreenStyles } from '../styles/screenStyles';
 import { useTheme } from '../context/ThemeContext';
+import { useTransactions } from '../context/TransactionContext';
+import { clearAllData } from '../storage';
 
 type Props = NativeStackScreenProps<any, 'Settings'>;
 
 export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const { colors } = useTheme();
+  const { setTransactions, setCategories, setBudgets, setGoals } = useTransactions();
+
+  const handleResetData = () => {
+    Alert.alert(
+      'Reset All Data',
+      'This will permanently delete all your transactions, categories, budgets, and goals. This action cannot be undone.\n\nAre you sure you want to continue?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await clearAllData();
+              setTransactions([]);
+              setCategories({ expense: [], income: [] });
+              setBudgets([]);
+              setGoals([]);
+              Alert.alert('Success', 'All data has been reset successfully.');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to reset data. Please try again.');
+            }
+          },
+        },
+      ]
+    );
+  };
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -87,6 +119,15 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
         >
           <MaterialCommunityIcons name="backup-restore" size={20} color={colors.primary} style={settingsScreenStyles.settingIcon} />
           <Text style={[settingsScreenStyles.settingText, { color: colors.text }]}>Backup & Restore</Text>
+          <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textSecondary} style={settingsScreenStyles.chevronIcon} />
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={settingsScreenStyles.settingRow}
+          onPress={handleResetData}
+        >
+          <MaterialCommunityIcons name="delete-alert" size={20} color="#ff4444" style={settingsScreenStyles.settingIcon} />
+          <Text style={[settingsScreenStyles.settingText, { color: '#ff4444' }]}>Reset Data</Text>
           <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textSecondary} style={settingsScreenStyles.chevronIcon} />
         </TouchableOpacity>
       </View>
